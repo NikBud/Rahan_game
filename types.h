@@ -14,7 +14,7 @@ typedef struct pos{
 } Position;
 
 typedef struct enemy {
-    char* name;
+    char * name;
     char symbol;
     int damage;
     int hp;
