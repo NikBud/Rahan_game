@@ -6,9 +6,10 @@
 
 int main(void){
     int i;
-    Map* m = create_map(); 
-    for (i = 0; i < 3; i++){
-        printf("Name of monster: %s\n", m->monsters[i].name);
-    }
+    Map* m = create_map();
+    m->size = 10;
+    
+    render_map(m);
+   
     return 0;
 }

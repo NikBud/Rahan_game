@@ -1,4 +1,4 @@
 #include "types.h"
 
-void render(Map m);
+void render_map(Map* m);
 Map* create_map();
