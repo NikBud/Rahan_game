@@ -65,4 +65,5 @@ typedef struct map {
     Monter* monsters;
     Rock* rocks;    
     Position* positions;
+    int position_list_size;
 } Map;
