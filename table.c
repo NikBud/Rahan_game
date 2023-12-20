@@ -229,6 +229,28 @@ void create_items(Map* m, Position* position_list, int position_list_size, int c
     m->items = i1;
 }
 
+void create_rahan(Map* m, Position* position_list, int position_list_size){
+    Hero* h = malloc(sizeof(Hero));
+    Item* itm = malloc(sizeof(Item) * 3);
+    h->max_hp = 100;
+    h->current_hp = h->max_hp;
+    h->force = 15;
+    h->speed = 1;
+    h->items = itm;
+    position_list[position_list_size].x = position_list[position_list_size - 1].x - 1;
+    position_list[position_list_size].y = position_list[position_list_size - 1].y;
+    h->pos = &position_list[position_list_size];
+    position_list[position_list_size].obj = h;
+    h->symbol = position_list[position_list_size++].symbol = 'R';
+
+    m->hero = h;
+}
+
+void create_arbre_olivier(Map* m, Position* position_list, int position_list_size){
+    position_list[position_list_size].x = 5;
+    position_list[position_list_size].y= 4;
+    position_list[position_list_size].symbol = 'Y';
+}
 
 
 Map* create_map() {
@@ -242,8 +264,12 @@ Map* create_map() {
 
     srand(time(NULL));
 
+    create_arbre_olivier(game_map, position_list, pos_list_size);
+    pos_list_size++;
+    create_rahan(game_map, position_list, pos_list_size);
+    pos_list_size++;
     create_rocks(game_map, position_list, pos_list_size, 4);
-    pos_list_size = 4;
+    pos_list_size += 4;
     create_monsters(game_map, position_list, pos_list_size, 3);
     pos_list_size+=3;
     create_food(game_map, position_list, pos_list_size, 2);

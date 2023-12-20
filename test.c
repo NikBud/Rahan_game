@@ -14,8 +14,9 @@ int main(void){
         printf("Food: %s  Desc: %s\n", m->food[i].name, m->food[i].description);
         printf("Item: %s  Bonus: %d\n", m->items[i].description, m->items[i].stat_bonus);
     }
+    
+    printf("symbol: %c; current_hp: %d; pos_x: %d; pos_y: %d;\n", m->hero->symbol, m->hero->current_hp, m->hero->pos->x, m->hero->pos->y);
+    
 
-    render_map(m);
-   
     return 0;
 }
