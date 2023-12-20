@@ -7,8 +7,11 @@
 char ifObjectPresentAtPosition(Map* m, int x, int y){
     int i;
     char chr;
+    Position* p;
+    
     chr = ' ';
-    Position* p = m->positions;
+    p = m->positions;
+    
     for(i = 0; i < m->position_list_size; i++){
         Position c = p[i];
         if(c.x == x && c.y == y){
@@ -60,39 +63,52 @@ void render_map(Map* m){
     }
 }
 
-void create_unique_pos(Position* position_list, int position_list_size) {
+void create_unique_pos(Map* m) {
+    Position* position_list;
     int pos_x, pos_y, j;
+
     j = 0;
+    position_list = m->positions;
     pos_x = rand() % 10;
     pos_y = rand() % 10;
-    for(j = 0; j < position_list_size; j++){
+
+    for(j = 0; j < m->position_list_size; j++){
         if(position_list[j].x == pos_x && position_list[j].y == pos_y){
             pos_x = rand() % 10;
             pos_y = rand() % 10;
             j = 0;
         }
     }
-    position_list[position_list_size].x = pos_x;
-    position_list[position_list_size].y= pos_y;
+    m->positions[m->position_list_size].x = pos_x;
+    m->positions[m->position_list_size].y= pos_y;
 }
 
-
-void create_rocks(Map* map, Position* position_list, int position_list_size, int count){
+void create_rocks(Map* map, int count){
     int i;
-    Rock* rocks = malloc(sizeof(Rock) * count);
+    Rock* rocks; 
+    Position* position_list;
+
+    position_list = map->positions;
+    rocks = malloc(sizeof(Rock) * count);
     
     for(i = 0; i < count; i++){
-        create_unique_pos(position_list, position_list_size);
-        rocks[i].symbol = position_list[position_list_size].symbol = '#';
-        position_list[position_list_size].obj = &rocks[i];
-        rocks[i].pos = &position_list[position_list_size++];
+        create_unique_pos(map);
+        rocks[i].symbol = position_list[map->position_list_size].symbol = '#';
+        position_list[map->position_list_size].obj = &rocks[i];
+        rocks[i].pos = &position_list[map->position_list_size++];
     }
     map->rocks = rocks;
 }
 
-Monter generate_monster(char* name, int dmg, int hp, Position* position_list, int position_list_size){
+Monter generate_monster(Map* m, char* name, int dmg, int hp){
+    Position* position_list;
+    int position_list_size;
     Monter final;
-    create_unique_pos(position_list, position_list_size);
+
+    position_list = m->positions;
+    position_list_size = m->position_list_size;
+    
+    create_unique_pos(m);
     final.damage = dmg;
     final.hp = hp;
     final.name = name;
@@ -100,9 +116,16 @@ Monter generate_monster(char* name, int dmg, int hp, Position* position_list, in
     final.pos = &position_list[position_list_size];
     return final;
 }
-Food generate_food(char* name, char* description, int heal, Position* position_list, int position_list_size){
+
+Food generate_food(Map* m, char* name, char* description, int heal){
+    Position* position_list;
+    int position_list_size;
     Food final;
-    create_unique_pos(position_list, position_list_size);
+
+    position_list = m->positions;
+    position_list_size = m->position_list_size;
+    
+    create_unique_pos(m);
     final.heal = rand() % 30;
     final.name = name;
     final.description = description;
@@ -110,9 +133,16 @@ Food generate_food(char* name, char* description, int heal, Position* position_l
     final.pos = &position_list[position_list_size];
     return final;
 }
-Item generate_item(char* description, int bonus, Item_Type type, Position* position_list, int position_list_size){
+
+Item generate_item(Map* m, char* description, int bonus, Item_Type type){
+    Position* position_list;
+    int position_list_size;
     Item final;
-    create_unique_pos(position_list, position_list_size);
+
+    position_list = m->positions;
+    position_list_size = m->position_list_size;
+    
+    create_unique_pos(m);
     final.description = description;
     final.stat_bonus = bonus;
     final.type = type;
@@ -120,28 +150,36 @@ Item generate_item(char* description, int bonus, Item_Type type, Position* posit
     final.pos = &position_list[position_list_size];
     return final;
 }
+
 char* get_food_desc(int rando){
-    int counter = 0;
-    char * line = malloc(sizeof(char) *100);
+    int counter;
+    char * line;
     FILE*fptr;
+
+    counter = 0;
+    line = malloc(sizeof(char) *100);
     fptr = fopen("foodesc.txt", "r");
+    
     while (fgets(line, 100, fptr) != NULL){
-            if (counter == rando){
-                printf("generated: %s\n", line);
-                fclose(fptr);
-                return line;
-            }
-            else{
-                counter++;
-            }
+        if (counter == rando){
+            fclose(fptr);
+            return line;
+        }
+        counter++;
     }
+
     fclose(fptr);
     return NULL;
 }
+
 char* get_name(int i, int rando){
-    int counter = 0;
-    char * line = malloc(sizeof(char) *100);
     FILE*fptr;
+    int counter;
+    char * line;
+
+    line = malloc(sizeof(char) *100);
+    counter = 0;
+    
     switch(i){
         case 1:
         fptr = fopen("monsternames.txt", "r");
@@ -156,82 +194,85 @@ char* get_name(int i, int rando){
         fptr = fopen("monsternames.txt", "r");
         break;
     }
+
     while (fgets(line, 100, fptr) != NULL){
-            if (counter == rando){
-                printf("generated: %s\n", line);
-                fclose(fptr);
-                return line;
-            }
-            else{
-                counter++;
-            }
+        if (counter == rando){
+            fclose(fptr);
+            return line;
+        }
+        counter++;
     }
+
     fclose(fptr);
     return NULL;
 }
-void create_monsters(Map* m, Position* position_list, int position_list_size, int count){
+
+void create_monsters(Map* m, int count){
+    Position* position_list;
     Monter* m1;
-    int i;
-    int r;
+    int i, r;
+
+    position_list = m->positions;
     m1 = malloc(sizeof(Monter) * count);
+    
     for (i = 0; i<count; i++){
         r = rand() % 100;
-        m1[i] = generate_monster(get_name(1, r), rand()%20, rand()%50, position_list, position_list_size);
-        position_list[position_list_size++].obj = &m1[i];    
+        m1[i] = generate_monster(m, get_name(1, r), rand()%20, rand()%50);
+        position_list[m->position_list_size++].obj = &m1[i];
     }
 
     m->monsters = m1;
 }
-void create_food(Map* m, Position* position_list, int position_list_size, int count){
+void create_food(Map* m, int count){
+    Position* position_list;
     Food* f1;
-    int i;
-    int r;
+    int i, r;
+
+    position_list = m->positions;
     f1 = malloc(sizeof(Food) * count);
+
     for (i = 0; i<count; i++){
         r = rand() % 10;
-        f1[i] = generate_food(get_name(2, r), get_food_desc(r), r*2, position_list, position_list_size);
-        position_list[position_list_size++].obj = &f1[i];    
+        f1[i] = generate_food(m, get_name(2, r), get_food_desc(r), r*2);
+        position_list[m->position_list_size++].obj = &f1[i]; 
     }
     m->food = f1;
 }
-void create_items(Map* m, Position* position_list, int position_list_size, int count){
+
+void create_items(Map* m, int count){
+    Position* position_list;
     Item* i1;
-    int i;
-    int r;
-    int bonus;
-    int cycle = 1;
+    int i, r, bonus, cycle;
+
+    cycle = 1;
     i1 = malloc(sizeof(Item) * count);
+    position_list = m->positions;
+
     for (i = 0; i<count; i++){
         cycle = (i+1)%4;
         r = rand() % 25;
-        bonus = rand() % 5;
-        printf("%i\n", cycle);
-        printf("Rand = %i\n", r);
+        bonus = (rand() % 4) + 1;
         switch(cycle){
             case 1:
-            i1[i] = generate_item(get_name(3, 2*r), bonus+1, Protections, position_list, position_list_size);
-            position_list[position_list_size++].obj = &i1[i];  
-            break;
+            i1[i] = generate_item(m, get_name(3, 2*r), bonus+1, Protections);
             case 2:
-            i1[i] = generate_item(get_name(3, 50 + r), bonus+1, Armes, position_list, position_list_size);
-            position_list[position_list_size++].obj = &i1[i];  
-            break;
+            i1[i] = generate_item(m, get_name(3, 50 + r), bonus+1, Armes);
             case 3:
-            i1[i] = generate_item(get_name(3, 75+r), bonus+1, Chaussures, position_list, position_list_size);
-            position_list[position_list_size++].obj = &i1[i];  
-            break;
+            i1[i] = generate_item(m, get_name(3, 75+r), bonus+1, Chaussures);
             default:
-            i1[i] = generate_item(get_name(3, 2*r), bonus, Protections, position_list, position_list_size);
-            position_list[position_list_size++].obj = &i1[i];  
-            break;
+            i1[i] = generate_item(m, get_name(3, 2*r), bonus, Protections);
         }
+        position_list[m->position_list_size++].obj = &i1[i];
     }
     m->items = i1;
 }
 
-void create_rahan(Map* m, Position* position_list, int position_list_size){
+void create_rahan(Map* m){
     Hero* h = malloc(sizeof(Hero));
     Item* itm = malloc(sizeof(Item) * 3);
+    Position* position_list = m->positions;
+    int position_list_size = m->position_list_size;
+    
     h->max_hp = 100;
     h->current_hp = h->max_hp;
     h->force = 15;
@@ -241,46 +282,33 @@ void create_rahan(Map* m, Position* position_list, int position_list_size){
     position_list[position_list_size].y = position_list[position_list_size - 1].y;
     h->pos = &position_list[position_list_size];
     position_list[position_list_size].obj = h;
-    h->symbol = position_list[position_list_size++].symbol = 'R';
+    h->symbol = position_list[position_list_size].symbol = 'R';
 
+    m->position_list_size++;
     m->hero = h;
 }
 
-void create_arbre_olivier(Map* m, Position* position_list, int position_list_size){
-    position_list[position_list_size].x = 5;
-    position_list[position_list_size].y= 4;
-    position_list[position_list_size].symbol = 'Y';
+void create_arbre_olivier(Map* m){
+    Position* position_list = m->positions;
+    position_list[m->position_list_size].x = 5;
+    position_list[m->position_list_size].y= 4;
+    position_list[m->position_list_size++].symbol = 'Y';
 }
 
-
 Map* create_map() {
-    int pos_list_size;
     Map* game_map;
-    Position* position_list;
-
-    pos_list_size = 0;
-    game_map = malloc(sizeof(Map));
-    position_list = malloc(16 * sizeof(sizeof(Position)));
-
     srand(time(NULL));
-
-    create_arbre_olivier(game_map, position_list, pos_list_size);
-    pos_list_size++;
-    create_rahan(game_map, position_list, pos_list_size);
-    pos_list_size++;
-    create_rocks(game_map, position_list, pos_list_size, 4);
-    pos_list_size += 4;
-    create_monsters(game_map, position_list, pos_list_size, 3);
-    pos_list_size+=3;
-    create_food(game_map, position_list, pos_list_size, 2);
-    pos_list_size+=2;
-    create_items(game_map, position_list, pos_list_size, 2);
-    pos_list_size+=2;
-
     
+    game_map = malloc(sizeof(Map));
+    game_map->positions = malloc(16 * sizeof(Position));
+    game_map->position_list_size = 0;
 
-    game_map->positions = position_list;
-    game_map->position_list_size = pos_list_size;
+    create_arbre_olivier(game_map);
+    create_rahan(game_map);
+    create_rocks(game_map, 4);
+    create_monsters(game_map, 3);
+    create_food(game_map, 2);
+    create_items(game_map, 4);
 
     return game_map;
 }

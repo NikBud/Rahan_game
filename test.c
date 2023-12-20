@@ -10,13 +10,14 @@ int main(void){
     m->size = 10;
     
     render_map(m);
-    for (i =0; i<2;i++){
-        printf("Food: %s  Desc: %s\n", m->food[i].name, m->food[i].description);
+    for (i =0; i < 2;i++){
+        printf("Food: %s  Desc: %s; Heal: %d\n", m->food[i].name, m->food[i].description, m->food[i].heal);
         printf("Item: %s  Bonus: %d\n", m->items[i].description, m->items[i].stat_bonus);
     }
-    
-    printf("symbol: %c; current_hp: %d; pos_x: %d; pos_y: %d;\n", m->hero->symbol, m->hero->current_hp, m->hero->pos->x, m->hero->pos->y);
-    
+        
+    for(i = 0; i < m->position_list_size; i++){
+        printf("pos_x: %d; pos_y: %d\n", m->positions[i].x, m->positions[i].y);
+    }
 
     return 0;
 }
