@@ -10,7 +10,6 @@ int main(void){
     m->size = 10;
     
     game_start(m->hero, m);
-
-
+  
     return 0;
 }
