@@ -9,8 +9,6 @@ int main(void){
     Map* m = create_map();
     m->size = 10;
     
-    render_map(m);
-    printf("is dead: %i \n", isDead(m->hero));
     game_start(m->hero, m);
 
 

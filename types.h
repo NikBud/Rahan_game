@@ -35,7 +35,7 @@ typedef struct food {
 } Food;
 
 typedef enum type{
-    Chaussures,
+    Chaussures = 0,
     Protections,
     Armes
 } Item_Type;
@@ -55,6 +55,7 @@ typedef struct hero{
     int speed;
     char symbol;
     Item* items;
+    int items_count;
     Position* pos;
 } Hero;
 

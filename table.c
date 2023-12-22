@@ -242,25 +242,27 @@ void create_food(Map* m, int count){
 void create_items(Map* m, int count){
     Position* position_list;
     Item* i1;
+    Item_Type itm_type;
     int i, r, bonus, cycle;
 
     cycle = 1;
     i1 = malloc(sizeof(Item) * count);
     position_list = m->positions;
 
-    for (i = 0; i<count; i++){
-        cycle = (i+1)%4;
+    for (i = 0; i < count; i++){
+        cycle = (i + 1) % 3;
+        itm_type = cycle;
         r = rand() % 25;
         bonus = (rand() % 4) + 1;
         switch(cycle){
             case 1:
-            i1[i] = generate_item(m, get_name(3, 2*r), bonus+1, Protections);
+                i1[i] = generate_item(m, get_name(3, 2*r), bonus + 1, itm_type);
             case 2:
-            i1[i] = generate_item(m, get_name(3, 50 + r), bonus+1, Armes);
+                i1[i] = generate_item(m, get_name(3, 50 + r), bonus + 1, itm_type);
             case 3:
-            i1[i] = generate_item(m, get_name(3, 75+r), bonus+1, Chaussures);
+                i1[i] = generate_item(m, get_name(3, 75+r), bonus + 1, itm_type);
             default:
-            i1[i] = generate_item(m, get_name(3, 2*r), bonus, Protections);
+                i1[i] = generate_item(m, get_name(3, 2*r), bonus, itm_type);
         }
         position_list[m->position_list_size++].obj = &i1[i];
     }
@@ -293,6 +295,38 @@ void create_arbre_olivier(Map* m){
     position_list[m->position_list_size].x = 5;
     position_list[m->position_list_size].y= 4;
     position_list[m->position_list_size++].symbol = 'Y';
+}
+
+void print_hero_items(Hero* h){
+    Item* itm = h->items;
+    int i;
+    const char* item_types[] = {
+        "Chaussures",
+        "Protections",
+        "Armes"
+    };
+
+    if(h->items_count == 0){
+        printf("   At the moment, your hero has no items.\n");
+    }
+
+    for(i = 0; i < h->items_count; i++){
+        printf("   %d:\n", i + 1);        
+        printf("   Type: %s\n", item_types[itm[i].type]);
+        printf("   Description: %s", itm[i].description);
+        printf("   Bonus: %c + %d\n\n", item_types[itm[i].type][0], itm[i].stat_bonus);
+    }
+}
+
+void print_hero_stats(Map* m){
+    Hero* h = m->hero;
+    printf("\nCurrent HP: %d;\n", h->current_hp);
+    printf("Max HP: %d;\n", h->max_hp);
+    printf("Force: %d;\n", h->force);
+    printf("Speed: %d;\n", h->speed);
+    printf("Current position x: %d;\n", h->pos->x);
+    printf("Current position y: %d;\n", h->pos->y);
+    printf("Items:\n"); print_hero_items(h);
 }
 
 Map* create_map() {
