@@ -22,36 +22,45 @@ char ifObjectPresentAtPosition(Map* m, int x, int y){
 }
 
 void render_map(Map* m){
-    int size, i, j; 
+    int size_x, size_y, i, j;
     char chr;
     chr = ' ';
-    size = m->size;
-    for(i = 0; i < size + 3; i++){
-        if(i == 0){
-            printf("  ");
-            for(j = 0; j < size; j++){
+    printf("base size = %i\n", m->size_x);
+    printf("x increase is: %i\n", m->x_increase);
+    size_x = m->size_x + m->x_increase;
+    printf("new size = %i\n", size_x);
+    size_y = m->size_y + m->y_increase;
+    for(i = 0 - m->x_decrease; i < size_x + 3; i++){
+        if(i == 0 - m->x_decrease){
+            printf("   ");
+            for(j = 0 - m->y_decrease; j < size_y; j++){
                 printf("%d ", j);
             }
         }
-        else if(i == 1 || i == size + 2){
-            printf(" ");
-            for(j = 0; j < size * 2 + 1; j++){
+        else if(i == 1-m->x_decrease || i == size_x + 2){
+            printf("  ");
+            for(j = 0; j < size_y * 2 + 1; j++){
                 if(j % 2 == 0) printf("+");
                 else printf("-");
             }
         }
         else{
-            for(j = 0; j < size * 2 + 2; j++){
-                if(j == 0){
-                    printf("%d", i - 2);
-                    continue;
+            for(j = 0 - m->y_decrease; j < size_y * 2 + 2; j++){
+                if(j == 0 - m->y_decrease){
+                    if(i < 12 && i >= 2){
+                        printf("%d ", i - 2);
+                        continue;
+                    }
+                    else{
+                        printf("%d", i - 2);
+                    }
                 }
-                else if (j == 1 || j == size * 2 + 1){
+                else if (j == 1 - m->y_decrease || j == size_y * 2 + 1){
                     printf("|");
                     continue;
                 }
-                else if (j % 2 == 0){
-                    chr = ifObjectPresentAtPosition(m, i - 2, j / 2 - 1);
+                else if ((j - m->y_decrease) % 2 == 0){
+                    chr = ifObjectPresentAtPosition(m, i-2, j / 2 - 1);
                     printf("%c", chr);
                 }
                 else{
@@ -336,6 +345,11 @@ Map* create_map() {
     game_map = malloc(sizeof(Map));
     game_map->positions = malloc(16 * sizeof(Position));
     game_map->position_list_size = 0;
+
+    game_map->x_decrease = 0;
+    game_map->y_decrease = 0;
+    game_map->x_increase = 0;
+    game_map->y_increase = 0;
 
     create_arbre_olivier(game_map);
     create_rahan(game_map);

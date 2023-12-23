@@ -60,7 +60,12 @@ typedef struct hero{
 } Hero;
 
 typedef struct map {
-    int size;
+    int size_x;
+    int size_y;
+    int x_increase;
+    int y_increase;
+    int x_decrease;
+    int y_decrease;
     Hero* hero;
     Item* items;
     Food* food;

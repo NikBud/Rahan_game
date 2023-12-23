@@ -45,28 +45,59 @@ void improve_hero(Hero* h, char* stat_to_improve, int stat_bonus){
         h->force = stat_bonus + 10;
     }
 }
-
+int battle_init(Hero* h, Monter* m){
+    int initiated = 1;
+    while (initiated){
+        m->hp = m->hp - h->force;
+        if (m->hp <= 0){
+            printf("Rahan defeated %s, a solid victory\n", m->name);
+            return 1;
+        }
+        h->current_hp = h->current_hp - m->damage;
+        if(isDead(h)){
+            printf("Rahan suffered a mortal wound inflicted by %s\n", m->name);
+            return 0;
+        }
+    }
+}
 void movement(Hero *h, int direction, Map *map)
 {
-    int i = 0, flag = 0;
+    int i = 0, flag = 0, calc_heal = 0;
     int xd = generate_x_pos(h->pos->x, direction);
     int yd = generate_y_pos(h->pos->y, direction);
-    for (i; i < map->position_list_size; i++)
-    {
-        if (map->positions[i].x == xd && map->positions[i].y == yd)
-        {
-            if (map->positions[i].symbol == '#')
-            {
+    for (i; i < map->position_list_size; i++){
+        if (map->positions[i].x == xd && map->positions[i].y == yd){
+            if (map->positions[i].symbol == '#'){
                 printf("There is a rock on your way !");
                 flag = 1;
             }
-            else if (map->positions[i].symbol == '*')
-            {
+            else if (map->positions[i].symbol == '*'){
                 Food *f = (Food *)map->positions[i].obj;
-
+                if (h->current_hp < h->max_hp){
+                    if (h->current_hp + f->heal > h -> max_hp){
+                        calc_heal = h->max_hp - h->current_hp;
+                        h->current_hp = h->max_hp;
+                        f->symbol = ' ';
+                        f->pos->x = 100000;
+                        printf("Healed Rahan for %i\n", calc_heal);
+                        break;
+                    }
+                    else{
+                        h->current_hp = h->current_hp + f->heal;
+                        f->symbol = ' ';
+                        f->pos->x = 100000;
+                        free(map->positions[i].obj);
+                        printf("Healed Rahan for %i\n", f->heal);
+                        break;
+                    }
+                }
+                else if (h->current_hp == h->max_hp){
+                    printf("Rahan doesn't feel hungry right now\n");
+                    f->pos->x = 100000;
+                    break;
+                }
             }
-            else if (map->positions[i].symbol == '!')
-            {
+            else if (map->positions[i].symbol == '!'){
                 Item *itm = (Item *)map->positions[i].obj;
                 int type = itm->type;
                 char* item_bonus_types[] = {
@@ -74,14 +105,12 @@ void movement(Hero *h, int direction, Map *map)
                     "hp",
                     "force"
                 };
-
                 Item existed_itm = h->items[type];
                 if (existed_itm.stat_bonus < itm->stat_bonus)
                 {
                     h->items[type] = *itm;
                     if (existed_itm.stat_bonus == 0) h->items_count++;
                     improve_hero(h, item_bonus_types[type], h->items[type].stat_bonus);
-
                     printf("\nCongrarulations! You have new item in your bag!\n");
                     printf("It's name is: %s", h->items[type].description);
                     printf("It gives to you %s bonus + %d\n", item_bonus_types[type], h->items[type].stat_bonus);
@@ -92,12 +121,35 @@ void movement(Hero *h, int direction, Map *map)
                 }
                 itm->pos->x = 1000;
             }
+            else if (map->positions[i].symbol == '@'){
+                Monter *mnstr = (Monter*)map->positions[i].obj; 
+                battle_init(h, mnstr);
+                mnstr->pos->x = 1000;          
+            }
         }
     }
     if (!flag)
     {
         h->pos->x = xd;
         h->pos->y = yd;
+    }
+    printf("pos x: %i size map x: %i\n", h->pos->x, 0 - map->x_decrease);
+    printf("pos Y: %i size map y: %i\n", h->pos->y, 0  - map->y_decrease);
+    if(h->pos->x >= map->size_x + map->x_increase){
+        printf("augmented x\n");
+        map->x_increase++;
+    }
+    if(h->pos->y >= map->size_y + map->y_increase){
+        printf("augmented y\n");
+        map->y_increase++;
+    }
+    if(h->pos->x <= 0 - map->x_decrease){
+        printf("decreased x\n");
+        map->x_decrease++;
+    }
+    if(h->pos->y <= 0 - map->y_decrease){
+        printf("decreased y\n");
+        map->y_decrease++;
     }
     
 }
