@@ -250,16 +250,16 @@ void create_items(Map* m, int count){
     position_list = m->positions;
 
     for (i = 0; i < count; i++){
-        cycle = (i + 1) % 3;
+        cycle = i % 3;
         itm_type = cycle;
         r = rand() % 25;
         bonus = (rand() % 4) + 1;
         switch(cycle){
-            case 1:
+            case 0:
                 i1[i] = generate_item(m, get_name(3, 2*r), bonus + 1, itm_type);
-            case 2:
+            case 1:
                 i1[i] = generate_item(m, get_name(3, 50 + r), bonus + 1, itm_type);
-            case 3:
+            case 2:
                 i1[i] = generate_item(m, get_name(3, 75+r), bonus + 1, itm_type);
             default:
                 i1[i] = generate_item(m, get_name(3, 2*r), bonus, itm_type);
@@ -275,9 +275,9 @@ void create_rahan(Map* m){
     Position* position_list = m->positions;
     int position_list_size = m->position_list_size;
     
-    h->max_hp = 100;
+    h->max_hp = 50;
     h->current_hp = h->max_hp;
-    h->force = 15;
+    h->force = 10;
     h->speed = 1;
     h->items = itm;
     position_list[position_list_size].x = position_list[position_list_size - 1].x - 1;
