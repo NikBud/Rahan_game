@@ -7,7 +7,12 @@
 int main(void){
     int i;
     Map* m = create_map();
-    m->size = 10;
+    m->size_x = 10;
+    m->size_y = 10;
+    
+
+
+
 
     Item* itm = m->items;
     itm->pos->x = 3;
