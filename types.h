@@ -56,6 +56,7 @@ typedef struct hero{
     char symbol;
     Item* items;
     int items_count;
+    int victories_count;
     Position* pos;
 } Hero;
 
@@ -70,6 +71,7 @@ typedef struct map {
     Item* items;
     Food* food;
     Monter* monsters;
+    int monster_list_size;
     Rock* rocks;    
     Position* positions;
     int position_list_size;
