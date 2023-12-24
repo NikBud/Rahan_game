@@ -24,12 +24,11 @@ char ifObjectPresentAtPosition(Map* m, int x, int y){
 void render_map(Map* m){
     int size_x, size_y, i, j;
     char chr;
+
     chr = ' ';
-    printf("base size = %i\n", m->size_x);
-    printf("x increase is: %i\n", m->x_increase);
     size_x = m->size_x + m->x_increase;
-    printf("new size = %i\n", size_x);
     size_y = m->size_y + m->y_increase;
+
     for(i = 0 - m->x_decrease; i < size_x + 3; i++){
         if(i == 0 - m->x_decrease){
             printf("   ");
@@ -37,7 +36,7 @@ void render_map(Map* m){
                 printf("%d ", j);
             }
         }
-        else if(i == 1-m->x_decrease || i == size_x + 2){
+        else if(i == 1 - m->x_decrease || i == size_x + 2){
             printf("  ");
             for(j = 0; j < size_y * 2 + 1; j++){
                 if(j % 2 == 0) printf("+");
@@ -48,7 +47,7 @@ void render_map(Map* m){
             for(j = 0 - m->y_decrease; j < size_y * 2 + 2; j++){
                 if(j == 0 - m->y_decrease){
                     if(i < 12 && i >= 2){
-                        printf("%d ", i - 2);
+                        printf(" %d", i - 2);
                         continue;
                     }
                     else{
@@ -60,7 +59,7 @@ void render_map(Map* m){
                     continue;
                 }
                 else if ((j - m->y_decrease) % 2 == 0){
-                    chr = ifObjectPresentAtPosition(m, i-2, j / 2 - 1);
+                    chr = ifObjectPresentAtPosition(m, i - 2, j / 2 - 1);
                     printf("%c", chr);
                 }
                 else{
@@ -279,10 +278,15 @@ void create_items(Map* m, int count){
 }
 
 void create_rahan(Map* m){
-    Hero* h = malloc(sizeof(Hero));
-    Item* itm = malloc(sizeof(Item) * 3);
-    Position* position_list = m->positions;
-    int position_list_size = m->position_list_size;
+    Hero* h;
+    Item* itm;
+    Position* position_list;
+    int position_list_size;
+
+    h = malloc(sizeof(Hero));
+    itm = malloc(sizeof(Item) * 3);
+    position_list = m->positions;
+    position_list_size = m->position_list_size;
     
     h->max_hp = 50;
     h->current_hp = h->max_hp;
@@ -300,7 +304,8 @@ void create_rahan(Map* m){
 }
 
 void create_arbre_olivier(Map* m){
-    Position* position_list = m->positions;
+    Position* position_list;
+    position_list = m->positions;
     position_list[m->position_list_size].x = 5;
     position_list[m->position_list_size].y= 4;
     position_list[m->position_list_size++].symbol = 'Y';
@@ -308,22 +313,28 @@ void create_arbre_olivier(Map* m){
 
 void print_hero_items(Hero* h){
     Item* itm = h->items;
-    int i;
+    int i, counter;
+
     const char* item_types[] = {
         "Chaussures",
         "Protections",
         "Armes"
     };
+    counter = 1;
 
     if(h->items_count == 0){
         printf("   At the moment, your hero has no items.\n");
     }
 
-    for(i = 0; i < h->items_count; i++){
-        printf("   %d:\n", i + 1);        
-        printf("   Type: %s\n", item_types[itm[i].type]);
-        printf("   Description: %s", itm[i].description);
-        printf("   Bonus: %c + %d\n\n", item_types[itm[i].type][0], itm[i].stat_bonus);
+    for(i = 0; i < 3; i++){
+        if (itm[i].stat_bonus != 0)
+        {
+            printf("   %d:\n", counter);        
+            printf("   Type: %s\n", item_types[itm[i].type]);
+            printf("   Description: %s", itm[i].description);
+            printf("   Bonus: %c + %d\n\n", item_types[itm[i].type][0], itm[i].stat_bonus);
+            counter++;
+        }
     }
 }
 
@@ -350,6 +361,7 @@ Map* create_map() {
     game_map->y_decrease = 0;
     game_map->x_increase = 0;
     game_map->y_increase = 0;
+    game_map->monster_list_size = 3;
 
     create_arbre_olivier(game_map);
     create_rahan(game_map);
