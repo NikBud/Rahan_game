@@ -33,7 +33,14 @@ void render_map(Map* m){
         if(i == 0 - m->x_decrease){
             printf("   ");
             for(j = 0 - m->y_decrease; j < size_y; j++){
-                printf("%d ", j);
+                if(j > 9) printf("%d ", j / 10);
+                else printf("  ");
+            }
+            printf("\n");
+            printf("   ");
+            for(j = 0 - m->y_decrease; j < size_y; j++){
+                if(j > 9) printf("%d ", j % 10);
+                else printf("%d ", j);
             }
         }
         else if(i == 1 - m->x_decrease || i == size_x + 2){
