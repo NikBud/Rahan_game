@@ -5,8 +5,6 @@
 #include "main_game.h"
 
 int main(void){
-    int i;
-
     game_start();
 
     return 0;
