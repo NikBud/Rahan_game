@@ -149,15 +149,16 @@ void handle_monster_case(Map *m, int i)
 
 void check_map_size(Map *m)
 {
-    Hero *h = m->hero;
+    Hero *h;
+    h = m->hero;
 
     if (h->pos->x >= m->size_x + m->x_increase)
         m->x_increase++;
     if (h->pos->y >= m->size_y + m->y_increase)
         m->y_increase++;
-    if (h->pos->x <= 0 - m->x_decrease)
+    if (h->pos->x < 0 - m->x_decrease)
         m->x_decrease++;
-    if (h->pos->y <= 0 - m->y_decrease)
+    if (h->pos->y < 0 - m->y_decrease)
         m->y_decrease++;
 }
 
@@ -195,13 +196,14 @@ void movement(Hero *h, int direction, Map *map)
             h->pos->x = xd;
             h->pos->y = yd;
         }
-
         check_map_size(map);
     }
 }
 
 void add_new_checkpoint(Map *m, Game_History *gh)
 {
+    Map_Cell *mc;
+
     if (gh->size < 3)
         gh->size++;
     else
@@ -211,7 +213,7 @@ void add_new_checkpoint(Map *m, Game_History *gh)
         free(second->next);
         second->next = NULL;
     }
-    Map_Cell *mc = malloc(sizeof(Map_Cell));
+    mc = malloc(sizeof(Map_Cell));
     mc->map = m;
     mc->next = gh->head;
     gh->head = mc;
@@ -268,7 +270,6 @@ void game_plot(Map *m, Game_History *gh)
             map_copy->size_x = 10;
             map_copy->size_y = 10;
             render_map(map_copy);
-            // print_hero_stats(map_copy);
         }
         else if (strcmp(c, "ANNULER") == 0)
         {
@@ -299,10 +300,13 @@ void game_plot(Map *m, Game_History *gh)
 
 void game_start()
 {
-    Map *m = create_map();
+    Map *m;
+    Game_History *gh;
+
+    m = create_map();
     m->size_x = 10;
     m->size_y = 10;
-    Game_History *gh = malloc(sizeof(Game_History));
+    gh = malloc(sizeof(Game_History));
     gh->head = NULL;
     gh->size = 0;
 

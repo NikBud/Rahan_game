@@ -1,3 +1,6 @@
+#ifndef TYPES_H
+#define TYPES_H
+
 #include<stdio.h>
 #include <stdlib.h>
 #include <limits.h>
@@ -88,3 +91,5 @@ typedef struct list{
     Map_Cell* head;
     int size;
 } Game_History;
+
+#endif

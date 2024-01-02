@@ -1,5 +1,5 @@
-#include "table.h"
+#include "create_map.h"
+#include "print_map.h"
+#include "copy_map.h"
 
-int isDead(Hero * h);
 void game_start();
-void movement(Hero* h, int direction, Map* map);
