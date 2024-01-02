@@ -145,17 +145,144 @@ void handle_monster_case(Map* m, int i){
     mnstr->pos->x = 1000;
 }
 
+int get_placement_X(char* c){
+    int i;
+    int ret = 0;
+    for(i = 2; i < strlen(c); i++){
+        if ('0' <= c[i] && c[i]<='9'){
+            ret = ret*10 + (c[i] - '0');
+        }
+        else{
+            printf("Wrong parameter for X\n");
+            return -1000;
+        }
+    }
+    return ret;
+}
+int get_placement_dX(char* c){
+    int i;
+    int ret = 0;
+    if (c[3] != '+' && c[3] != '-'){
+        printf("Argument missing\n");
+        return -1000;
+    }
+    for(i = 4; i <= strlen(c); i++){
+        if ('0' <= c[i] && c[i]<='9'){
+            ret = ret*10 + (c[i] - '0');
+        }
+        else{
+            printf("Wrong parameter for X\n");
+            return -1000;
+        }
+    }
+    if (c[2] == '-'){
+        return 5 - ret;
+    }
+    else{
+        return 5 + ret;
+    }
+}
+int get_placement_DX(char* c, Hero* h){
+    int i;
+    int ret = 0;
+    if (c[3] != '+' && c[3] != '-'){
+        printf("Argument missing\n");
+        return -1000;
+    }
+    for(i = 4; i < strlen(c); i++){
+        if ('0' <= c[i] && c[i]<='9'){
+            ret = ret*10 + (c[i] - '0');
+        }
+        else{
+            printf("Wrong parameter for X\n");
+            return -1000;
+        }
+    }
+    if (c[3] == '-'){
+        return h->pos->x - ret;
+    }
+    else{
+        return h->pos->x + ret;
+    }
+}
+
+int get_placement_Y(char* c){
+    int i;
+    int ret = 0;
+    for(i = 2; i < strlen(c); i++){
+        if ('0' <= c[i] && c[i]<='9'){
+            ret = ret*10 + (c[i] - '0');
+        }
+        else{
+            printf("Wrong parameter for Y\n");
+            return -1000;
+        }
+    }
+    return ret;
+}
+int get_placement_dY(char* c){
+    int i;
+    int ret = 0;
+    if (c[3] != '+' && c[3] != '-'){
+        printf("Argument missing\n");
+        return -1000;
+    }
+    for(i = 4; i < strlen(c); i++){
+        if ('0' <= c[i] && c[i]<='9'){
+            ret = ret*10 + (c[i] - '0');
+        }
+        else{
+            printf("Wrong parameter for y\n");
+            return -1000;
+        }
+    }
+    if (c[3] == '-'){
+        return 4 - ret;
+    }
+    else{
+        return 4 + ret;
+    }
+}
+int get_placement_DY(char* c, Hero* h){
+    int i;
+    int ret = 0;
+    if (c[3] != '+' && c[3] != '-'){
+        printf("Argument missing\n");
+        return -1000;
+    }
+    for(i = 4; i < strlen(c); i++){
+        if ('0' <= c[i] && c[i]<='9'){
+            ret = ret*10 + (c[i] - '0');
+        }
+        else{
+            printf("Wrong parameter for Y\n");
+            return -1000;
+        }
+    }
+    if (c[3] == '-'){
+        return h->pos->y - ret;
+    }
+    else{
+        return h->pos->y + ret;
+    }
+}
 void check_map_size(Map* m){
     Hero* h = m->hero;
     
-    if (h->pos->x >= m->size_x + m->x_increase)
+    if (h->pos->x >= m->size_x + m->x_increase){
         m->x_increase++;
-    if (h->pos->y >= m->size_y + m->y_increase)
+    }
+    if (h->pos->y >= m->size_y + m->y_increase){
         m->y_increase++;
-    if (h->pos->x <= 0 - m->x_decrease)
+    }
+    if (h->pos->x < 0 - m->x_decrease){
         m->x_decrease++;
-    if (h->pos->y <= 0 - m->y_decrease)
+        printf("current x: %i, decreased x: %i\n", h->pos->x, 0-m->x_decrease);
+    }
+    if (h->pos->y < 0 - m->y_decrease){
+        printf("current y: %i, decreased y: %i\n", h->pos->y, 0-m->y_decrease);
         m->y_decrease++;
+    }
 }
 
 void movement(Hero *h, int direction, Map *map)
@@ -184,7 +311,6 @@ void movement(Hero *h, int direction, Map *map)
             break;
         }
     }
-
     if (!flag)
     {
         h->pos->x = xd;
@@ -195,8 +321,9 @@ void movement(Hero *h, int direction, Map *map)
 }
 
 void game_start(Hero *h, Map *m)
-{
+{   
     char c[12];
+    char d[50];
     printf("Welcome to the Rahan Game !\n");
     printf("Type the word \'AUBE\' to start the game: ");
     scanf("%10s", c);
@@ -214,7 +341,6 @@ void game_start(Hero *h, Map *m)
     {
         printf("\nYour command: ");
         scanf("%10s", c);
-
         if (strcmp(c, "CREPUSCULE") == 0)
         {
             printf("\nYou decided to end up the game, thank you and our team are waiting for you again!\n");
@@ -232,6 +358,54 @@ void game_start(Hero *h, Map *m)
             render_map(m);
         else if (strcmp(c, "INVOCATION") == 0)
             print_hero_stats(m);
+        else if (c[0] == 'd' && c[1] == 'X' && c[2] == '='){
+            if (m->x_toPlace == -1000){
+                m->x_toPlace = get_placement_dX(c);
+            }
+            else{
+                printf("X coordinate already put in: %i\n", m->x_toPlace);
+            }
+        }
+        else if (c[0] == 'D' && c[1] == 'X' && c[2] == '='){
+            if (m->x_toPlace == -1000){
+                m->x_toPlace = get_placement_dX(c);
+            }
+            else{
+                printf("X coordinate already put in: %i\n", m->x_toPlace);
+            }
+        }
+        else if (c[0] == 'X' && c[1] == '='){
+            if (m->x_toPlace == -1000){
+                m->x_toPlace = get_placement_dX(c);
+            }
+            else{
+                printf("X coordinate already put in: %i\n", m->x_toPlace);
+            }
+        }
+        else if (c[0] == 'd' && c[1] == 'Y' && c[2] == '='){
+            if (m->y_toPlace == -1000){
+                m->y_toPlace = get_placement_dY(c);
+            }
+            else{
+                printf("Y coordinate already put in: %i\n", m->y_toPlace);
+            }
+        }
+        else if (c[0] == 'D' && c[1] == 'Y' && c[2] == '='){
+            if (m->y_toPlace == -1000){
+                m->y_toPlace = get_placement_dY(c);
+            }
+            else{
+                printf("Y coordinate already put in: %i\n", m->y_toPlace);
+            }
+        }
+        else if (c[0] == 'Y' && c[1] == '='){
+            if (m->y_toPlace == -1000){
+                m->y_toPlace = get_placement_dY(c);
+            }
+            else{
+                printf("Y coordinate already put in: %i\n", m->y_toPlace);
+            }
+        }
         else
             printf("\nUnknown command, please try again.\nAllowed commands are: AUBE (start game), CREPUSCULE (finish game),\nVISION (print map), INVOCATION (stats of player),\nHAUT (make a step up), BAS (make a step down),\nGAUCHE (make a step left), DROITE (make a step right).\n");
     }

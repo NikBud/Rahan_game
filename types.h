@@ -67,11 +67,16 @@ typedef struct map {
     int y_increase;
     int x_decrease;
     int y_decrease;
+    int x_toPlace;
+    int y_toPlace;
     Hero* hero;
     Item* items;
     Food* food;
     Monter* monsters;
     int monster_list_size;
+    int food_list_size;
+    int rock_list_size;
+    int item_list_size;
     Rock* rocks;    
     Position* positions;
     int position_list_size;
