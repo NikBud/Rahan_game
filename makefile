@@ -1,7 +1,7 @@
 CC = gcc
 OPTIONS = -Wall -ansi -pedantic
 
-EXECUTABLE = programme
+EXECUTABLE = rahan
 
 SOURCE = $(wildcard *.c)
 OBJECTS = $(SOURCE:.c=.o)

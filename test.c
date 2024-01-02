@@ -6,11 +6,8 @@
 
 int main(void){
     int i;
-    Map* m = create_map();
-    m->size_x = 10;
-    m->size_y = 10;
 
-    game_start(m->hero, m);
+    game_start();
 
     return 0;
 }

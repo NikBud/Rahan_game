@@ -12,7 +12,8 @@ int isDead(Hero *h)
     return 0;
 }
 
-int isVictory(Map* m){
+int isVictory(Map *m)
+{
     return m->hero->victories_count == m->monster_list_size;
 }
 
@@ -69,7 +70,7 @@ void handle_food_case(Map *m, int i)
     Hero *h;
     Food *f;
     int calc_heal;
-    
+
     h = m->hero;
     f = (Food *)m->positions[i].obj;
     calc_heal = 0;
@@ -101,26 +102,26 @@ void handle_food_case(Map *m, int i)
 
 void handle_item_case(Map *m, int i)
 {
-    Hero* h;
+    Hero *h;
     Item *itm;
     int type;
     Item existed_itm;
     char *item_bonus_types[3];
-    
+
     h = m->hero;
     itm = (Item *)m->positions[i].obj;
     type = itm->type;
     existed_itm = h->items[type];
-    
+
     item_bonus_types[0] = "speed";
     item_bonus_types[1] = "hp";
     item_bonus_types[2] = "force";
-    
-    
+
     if (existed_itm.stat_bonus < itm->stat_bonus)
     {
         h->items[type] = *itm;
-        if (existed_itm.stat_bonus == 0) h->items_count++;
+        if (existed_itm.stat_bonus == 0)
+            h->items_count++;
         improve_hero(h, item_bonus_types[type], h->items[type].stat_bonus);
         printf("\nCongrarulations! You have new item in your bag!\n");
         printf("It's name is: %s", h->items[type].description);
@@ -134,20 +135,22 @@ void handle_item_case(Map *m, int i)
     itm->pos->x = 1000;
 }
 
-void handle_monster_case(Map* m, int i){
-    Hero* h;
+void handle_monster_case(Map *m, int i)
+{
+    Hero *h;
     Monter *mnstr;
-    
+
     h = m->hero;
     mnstr = (Monter *)m->positions[i].obj;
-    
+
     battle_init(h, mnstr);
     mnstr->pos->x = 1000;
 }
 
-void check_map_size(Map* m){
-    Hero* h = m->hero;
-    
+void check_map_size(Map *m)
+{
+    Hero *h = m->hero;
+
     if (h->pos->x >= m->size_x + m->x_increase)
         m->x_increase++;
     if (h->pos->y >= m->size_y + m->y_increase)
@@ -160,42 +163,63 @@ void check_map_size(Map* m){
 
 void movement(Hero *h, int direction, Map *map)
 {
-    int i, flag, calc_heal, xd, yd;
-    
-    xd = desired_x_pos(h->pos->x, direction);
-    yd = desired_y_pos(h->pos->y, direction);
-    flag = calc_heal = 0;
-
-    for (i = 0; i < map->position_list_size; i++)
+    int i, j, flag, calc_heal, xd, yd, current_speed;
+    current_speed = h->speed;
+    for (j = 0; j < current_speed; j++)
     {
-        if (map->positions[i].x == xd && map->positions[i].y == yd)
+        xd = desired_x_pos(h->pos->x, direction);
+        yd = desired_y_pos(h->pos->y, direction);
+        flag = calc_heal = 0;
+
+        for (i = 0; i < map->position_list_size; i++)
         {
-            if (map->positions[i].symbol == '#')
+            if (map->positions[i].x == xd && map->positions[i].y == yd)
             {
-                printf("\nThere is a rock on your way !\n");
-                flag = 1;
+                if (map->positions[i].symbol == '#')
+                {
+                    printf("\nThere is a rock on your way !\n");
+                    flag = 1;
+                }
+                else if (map->positions[i].symbol == '*')
+                    handle_food_case(map, i);
+                else if (map->positions[i].symbol == '!')
+                    handle_item_case(map, i);
+                else if (map->positions[i].symbol == '@')
+                    handle_monster_case(map, i);
+                break;
             }
-            else if (map->positions[i].symbol == '*')
-                handle_food_case(map, i);
-            else if (map->positions[i].symbol == '!')
-                handle_item_case(map, i);
-            else if (map->positions[i].symbol == '@')
-                handle_monster_case(map, i);
-            break;
         }
-    }
 
-    if (!flag)
-    {
-        h->pos->x = xd;
-        h->pos->y = yd;
-    }
+        if (!flag)
+        {
+            h->pos->x = xd;
+            h->pos->y = yd;
+        }
 
-    check_map_size(map);
+        check_map_size(map);
+    }
 }
 
-void game_start(Hero *h, Map *m)
+void add_new_checkpoint(Map *m, Game_History *gh)
 {
+    if (gh->size < 3)
+        gh->size++;
+    else
+    {
+        Map_Cell *second = gh->head->next;
+        free(second->next->map);
+        free(second->next);
+        second->next = NULL;
+    }
+    Map_Cell *mc = malloc(sizeof(Map_Cell));
+    mc->map = m;
+    mc->next = gh->head;
+    gh->head = mc;
+}
+
+void game_plot(Map *m, Game_History *gh)
+{
+    Hero *h = m->hero;
     char c[12];
     printf("Welcome to the Rahan Game !\n");
     printf("Type the word \'AUBE\' to start the game: ");
@@ -212,6 +236,7 @@ void game_start(Hero *h, Map *m)
 
     while (!isDead(h) && !isVictory(m))
     {
+        h = m->hero;
         printf("\nYour command: ");
         scanf("%10s", c);
 
@@ -220,24 +245,66 @@ void game_start(Hero *h, Map *m)
             printf("\nYou decided to end up the game, thank you and our team are waiting for you again!\n");
             break;
         }
-        else if (strcmp(c, "HAUT") == 0)
-            movement(h, 1, m);
-        else if (strcmp(c, "BAS") == 0)
-            movement(h, 2, m);
-        else if (strcmp(c, "DROIT") == 0)
-            movement(h, 3, m);
-        else if (strcmp(c, "GAUCHE") == 0)
-            movement(h, 4, m);
+        else if (strcmp(c, "HAUT") == 0 || strcmp(c, "BAS") == 0 || strcmp(c, "DROIT") == 0 || strcmp(c, "GAUCHE") == 0)
+        {
+            Map *copy = copy_map(m);
+            add_new_checkpoint(copy, gh);
+            if (strcmp(c, "HAUT") == 0)
+                movement(h, 1, m);
+            else if (strcmp(c, "BAS") == 0)
+                movement(h, 2, m);
+            else if (strcmp(c, "DROIT") == 0)
+                movement(h, 3, m);
+            else if (strcmp(c, "GAUCHE") == 0)
+                movement(h, 4, m);
+        }
         else if (strcmp(c, "VISION") == 0)
             render_map(m);
         else if (strcmp(c, "INVOCATION") == 0)
             print_hero_stats(m);
+        else if (strcmp(c, "COPY") == 0)
+        {
+            Map *map_copy = copy_map(m);
+            map_copy->size_x = 10;
+            map_copy->size_y = 10;
+            render_map(map_copy);
+            // print_hero_stats(map_copy);
+        }
+        else if (strcmp(c, "ANNULER") == 0)
+        {
+            if (gh->size == 0)
+            {
+                printf("Sorry, you can undo the last 3 steps at most.\n");
+                printf("Of course, you also need to take these 3 steps in order to cancel one of them :)\n");
+            }
+            else
+            {
+                Map_Cell *mc = gh->head;
+                gh->head = gh->head->next;
+                gh->size--;
+                render_map(mc->map);
+                // release_map_memory(m);
+                m = mc->map;
+            }
+        }
         else
             printf("\nUnknown command, please try again.\nAllowed commands are: AUBE (start game), CREPUSCULE (finish game),\nVISION (print map), INVOCATION (stats of player),\nHAUT (make a step up), BAS (make a step down),\nGAUCHE (make a step left), DROITE (make a step right).\n");
     }
 
     if (isDead(h))
         printf("\nRahan fought bravely, but unfortunately fell at the hands of his strongest enemies.\nGive Rahan a chance to try his luck again!\n");
-    else 
+    else
         printf("\nThe game ends with a majestic victory for Rahan.\nHe managed to defeat all the enemies in his path and was able to maintain %d health.\n", h->current_hp);
+}
+
+void game_start()
+{
+    Map *m = create_map();
+    m->size_x = 10;
+    m->size_y = 10;
+    Game_History *gh = malloc(sizeof(Game_History));
+    gh->head = NULL;
+    gh->size = 0;
+
+    game_plot(m, gh);
 }
