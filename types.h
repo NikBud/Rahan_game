@@ -76,3 +76,15 @@ typedef struct map {
     Position* positions;
     int position_list_size;
 } Map;
+
+typedef struct cell Map_Cell;
+
+struct cell{
+    Map* map;
+    Map_Cell* next;
+};
+
+typedef struct list{
+    Map_Cell* head;
+    int size;
+} Game_History;
