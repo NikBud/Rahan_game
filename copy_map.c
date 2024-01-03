@@ -2,37 +2,32 @@
 
 Position* copy_pos(Map* copy_map, void* obj, void* new_obj, int obj_type){
     int pos_list_size;
-    Rock* rocks, *new_rocks;
-    Monter* monsters, *new_monsters;
-    Food* food, *new_food;
-    Item* items, *new_items;
-    Hero* hero, *new_hero;
+    Rock* rocks;
+    Monster* monsters;
+    Food* food;
+    Item* items;
+    Hero* hero;
 
     Position* pos_to_copy, * copy;
     if (obj_type == 0)
     {
         rocks = (Rock*) obj;
-        new_rocks = (Rock*) new_obj;
         pos_to_copy = rocks->pos;
     }
     else if(obj_type == 1){
-        monsters = (Monter*) obj;
-        new_monsters = (Monter*) new_obj;
+        monsters = (Monster*) obj;
         pos_to_copy = monsters->pos;
     }
     else if(obj_type == 2){
         food = (Food*) obj;
-        new_food = (Food*) new_obj;
         pos_to_copy = food->pos;
     }
     else if(obj_type == 3){
         items = (Item*) obj;
-        new_items = (Item*) new_obj;
         pos_to_copy = items->pos;
     }
     else{
         hero = (Hero*) obj;
-        new_hero = (Hero*) new_obj;
         pos_to_copy = hero->pos;
     }
     copy = copy_map->positions;
@@ -49,10 +44,10 @@ Position* copy_pos(Map* copy_map, void* obj, void* new_obj, int obj_type){
 
 void copy_monsters(Map* map_to_copy, Map* copy_map, int monsters_count){
     int i;
-    Monter *new_monsters, *monsters_to_copy;
+    Monster *new_monsters, *monsters_to_copy;
 
     monsters_to_copy = map_to_copy->monsters;
-    new_monsters = malloc(sizeof(Monter) * monsters_count);
+    new_monsters = malloc(sizeof(Monster) * monsters_count);
 
     for(i = 0; i < monsters_count; i++){
         new_monsters[i].symbol = monsters_to_copy[i].symbol;

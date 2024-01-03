@@ -1,9 +1,10 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#include<stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
+#include "stdprof.h"
 
 typedef struct pos{
     int x;
@@ -22,7 +23,7 @@ typedef struct enemy {
     int damage;
     int hp;
     Position* pos;
-} Monter;
+} Monster;
 
 typedef struct rock {
     char symbol;
@@ -73,7 +74,7 @@ typedef struct map {
     Hero* hero;
     Item* items;
     Food* food;
-    Monter* monsters;
+    Monster* monsters;
     int monster_list_size;
     Rock* rocks;    
     Position* positions;

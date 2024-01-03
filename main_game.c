@@ -45,7 +45,7 @@ void improve_hero(Hero *h, char *stat_to_improve, int stat_bonus)
         h->force = stat_bonus + 10;
 }
 
-int battle_init(Hero *h, Monter *m)
+int battle_init(Hero *h, Monster *m)
 {
     while (1)
     {
@@ -138,10 +138,10 @@ void handle_item_case(Map *m, int i)
 void handle_monster_case(Map *m, int i)
 {
     Hero *h;
-    Monter *mnstr;
+    Monster *mnstr;
 
     h = m->hero;
-    mnstr = (Monter *)m->positions[i].obj;
+    mnstr = (Monster *)m->positions[i].obj;
 
     battle_init(h, mnstr);
     mnstr->pos->x = 1000;

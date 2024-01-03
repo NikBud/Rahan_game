@@ -41,10 +41,10 @@ void create_rocks(Map* map, int count){
     map->rocks = rocks;
 }
 
-Monter generate_monster(Map* m, char* name, int dmg, int hp){
+Monster generate_monster(Map* m, char* name, int dmg, int hp){
     Position* position_list;
     int position_list_size;
-    Monter final;
+    Monster final;
 
     position_list = m->positions;
     position_list_size = m->position_list_size;
@@ -150,11 +150,11 @@ char* get_name(int i, int rando){
 
 void create_monsters(Map* m, int count){
     Position* position_list;
-    Monter* m1;
+    Monster* m1;
     int i, r;
 
     position_list = m->positions;
-    m1 = malloc(sizeof(Monter) * count);
+    m1 = malloc(sizeof(Monster) * count);
     
     for (i = 0; i<count; i++){
         r = rand() % 100;
