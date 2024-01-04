@@ -45,7 +45,7 @@ void improve_hero(Hero *h, char *stat_to_improve, int stat_bonus)
         h->force = stat_bonus + 10;
 }
 
-int battle_init(Hero *h, Monter *m)
+int battle_init(Hero *h, Monster *m)
 {
     while (1)
     {
@@ -138,10 +138,10 @@ void handle_item_case(Map *m, int i)
 void handle_monster_case(Map *m, int i)
 {
     Hero *h;
-    Monter *mnstr;
+    Monster *mnstr;
 
     h = m->hero;
-    mnstr = (Monter *)m->positions[i].obj;
+    mnstr = (Monster *)m->positions[i].obj;
 
     battle_init(h, mnstr);
     mnstr->pos->x = 1000;
@@ -166,7 +166,8 @@ void movement(Hero *h, int direction, Map *map)
 {
     int i, j, flag, calc_heal, xd, yd, current_speed;
     current_speed = h->speed;
-    for (j = 0; j < current_speed; j++)
+    j = 0;
+    while (j < current_speed && !isDead(h) && !isVictory(map))
     {
         xd = desired_x_pos(h->pos->x, direction);
         yd = desired_y_pos(h->pos->y, direction);
@@ -197,7 +198,61 @@ void movement(Hero *h, int direction, Map *map)
             h->pos->y = yd;
         }
         check_map_size(map);
+        j++;
     }
+}
+
+void release_created_names(Map *m)
+{
+    int i;
+    for (i = 0; i < 2; i++)
+    {
+        stdprof_free(m->food[i].name);
+        stdprof_free(m->food[i].description);
+    }
+
+    for (i = 0; i < 4; i++)
+    {
+        stdprof_free(m->items[i].description);
+    }
+
+    for (i = 0; i < 3; i++)
+    {
+        stdprof_free(m->monsters[i].name);
+    }
+}
+
+void release_map_memory(Map *m)
+{
+    stdprof_free(m->positions);
+    stdprof_free(m->rocks);
+    stdprof_free(m->food);
+    stdprof_free(m->items);
+    stdprof_free(m->monsters);
+    stdprof_free(m->hero->items);
+    stdprof_free(m->hero);
+    stdprof_free(m);
+}
+
+void release_final_map_memory(Map* m){
+    release_created_names(m);
+    release_map_memory(m);
+}
+
+void release_MapCell_memory(Map_Cell *mc)
+{
+    if (mc != NULL)
+    {
+        release_map_memory(mc->map);
+        release_MapCell_memory(mc->next);
+        stdprof_free(mc);
+    }
+}
+
+void release_GameHistory_memory(Game_History *gh)
+{
+    release_MapCell_memory(gh->head);
+    stdprof_free(gh);
 }
 
 void add_new_checkpoint(Map *m, Game_History *gh)
@@ -209,11 +264,10 @@ void add_new_checkpoint(Map *m, Game_History *gh)
     else
     {
         Map_Cell *second = gh->head->next;
-        free(second->next->map);
-        free(second->next);
+        release_MapCell_memory(second->next);
         second->next = NULL;
     }
-    mc = malloc(sizeof(Map_Cell));
+    mc = stdprof_malloc(sizeof(Map_Cell));
     mc->map = m;
     mc->next = gh->head;
     gh->head = mc;
@@ -264,13 +318,6 @@ void game_plot(Map *m, Game_History *gh)
             render_map(m);
         else if (strcmp(c, "INVOCATION") == 0)
             print_hero_stats(m);
-        else if (strcmp(c, "COPY") == 0)
-        {
-            Map *map_copy = copy_map(m);
-            map_copy->size_x = 10;
-            map_copy->size_y = 10;
-            render_map(map_copy);
-        }
         else if (strcmp(c, "ANNULER") == 0)
         {
             if (gh->size == 0)
@@ -284,8 +331,9 @@ void game_plot(Map *m, Game_History *gh)
                 gh->head = gh->head->next;
                 gh->size--;
                 render_map(mc->map);
-                // release_map_memory(m);
+                release_map_memory(m);
                 m = mc->map;
+                stdprof_free(mc);
             }
         }
         else
@@ -296,6 +344,10 @@ void game_plot(Map *m, Game_History *gh)
         printf("\nRahan fought bravely, but unfortunately fell at the hands of his strongest enemies.\nGive Rahan a chance to try his luck again!\n");
     else
         printf("\nThe game ends with a majestic victory for Rahan.\nHe managed to defeat all the enemies in his path and was able to maintain %d health.\n", h->current_hp);
+    
+
+    release_GameHistory_memory(gh);
+    release_final_map_memory(m);
 }
 
 void game_start()
@@ -306,7 +358,7 @@ void game_start()
     m = create_map();
     m->size_x = 10;
     m->size_y = 10;
-    gh = malloc(sizeof(Game_History));
+    gh = stdprof_malloc(sizeof(Game_History));
     gh->head = NULL;
     gh->size = 0;
 

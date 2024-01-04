@@ -7,5 +7,7 @@
 int main(void){
     game_start();
 
+    stdprof_afficher();
+
     return 0;
 }
