@@ -81,12 +81,10 @@ typedef struct map {
     int position_list_size;
 } Map;
 
-typedef struct cell Map_Cell;
-
-struct cell{
+typedef struct cell{
     Map* map;
-    Map_Cell* next;
-};
+    struct cell* next;
+} Map_Cell;
 
 typedef struct list{
     Map_Cell* head;

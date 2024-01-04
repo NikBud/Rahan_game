@@ -3,7 +3,6 @@
 #include "stdprof.h"
 
 
-
 typedef struct element_t {
     void * contenu;
     int  ligne;

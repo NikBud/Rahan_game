@@ -47,7 +47,7 @@ void copy_monsters(Map* map_to_copy, Map* copy_map, int monsters_count){
     Monster *new_monsters, *monsters_to_copy;
 
     monsters_to_copy = map_to_copy->monsters;
-    new_monsters = malloc(sizeof(Monster) * monsters_count);
+    new_monsters = stdprof_malloc(sizeof(Monster) * monsters_count);
 
     for(i = 0; i < monsters_count; i++){
         new_monsters[i].symbol = monsters_to_copy[i].symbol;
@@ -63,7 +63,7 @@ void copy_rocks(Map* map_to_copy, Map* copy_map, int rocks_count){
     int i;
     Rock *new_rocks, *rocks_to_copy;
 
-    new_rocks = malloc(sizeof(Rock) * rocks_count);
+    new_rocks = stdprof_malloc(sizeof(Rock) * rocks_count);
     rocks_to_copy = map_to_copy->rocks;
 
     for(i = 0; i < rocks_count; i++){
@@ -77,7 +77,7 @@ void copy_items(Map* map_to_copy, Map* copy_map, int items_count){
     int i;
     Item *new_items, *items_to_copy;
 
-    new_items = malloc(sizeof(Item) * items_count);
+    new_items = stdprof_malloc(sizeof(Item) * items_count);
     items_to_copy = map_to_copy->items;
     
     for(i = 0; i < items_count; i++){
@@ -94,7 +94,7 @@ void copy_food(Map* map_to_copy, Map* copy_map, int food_count){
     int i;
     Food *new_food, *food_to_copy;
 
-    new_food = malloc(sizeof(Food) * food_count);
+    new_food = stdprof_malloc(sizeof(Food) * food_count);
     food_to_copy = map_to_copy->food;
     
     for(i = 0; i < food_count; i++){
@@ -112,7 +112,7 @@ void copy_hero_items(Hero* hero_to_copy, Hero* new_hero){
     Item *items_to_copy, *new_items;
 
     items_to_copy = hero_to_copy->items;
-    new_items = malloc(sizeof(Item) * 3);
+    new_items = stdprof_malloc(sizeof(Item) * 3);
     new_hero->items_count = hero_to_copy->items_count;
        
     for(i = 0; i < 3; i++){
@@ -129,7 +129,7 @@ void copy_rahan(Map* map_to_copy, Map* copy_map){
     Hero* hero_to_copy, *new_hero;
     
     hero_to_copy = map_to_copy->hero;
-    new_hero = malloc(sizeof(Hero));
+    new_hero = stdprof_malloc(sizeof(Hero));
 
     new_hero->current_hp = hero_to_copy->current_hp;
     new_hero->force = hero_to_copy->force;
@@ -155,8 +155,8 @@ void copy_arbre_olivier(Map* m){
 Map* copy_map(Map* m){
     Map* map_copy;
     
-    map_copy = malloc(sizeof(Map));
-    map_copy->positions = malloc(16 * sizeof(Position));
+    map_copy = stdprof_malloc(sizeof(Map));
+    map_copy->positions = stdprof_malloc(16 * sizeof(Position));
     map_copy->monster_list_size = m->monster_list_size;
 
     copy_arbre_olivier(map_copy);
