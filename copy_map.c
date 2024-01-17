@@ -152,7 +152,7 @@ void copy_arbre_olivier(Map* m){
     position_list[m->position_list_size++].symbol = 'Y';
 }
 
-Map* copy_map(Map* m){
+Map* copy_map(Map* m, int foodCount, int monstersCount, int itemsCount, int rocksCount){
     Map* map_copy;
     
     map_copy = stdprof_malloc(sizeof(Map));
@@ -160,10 +160,10 @@ Map* copy_map(Map* m){
     map_copy->monster_list_size = m->monster_list_size;
 
     copy_arbre_olivier(map_copy);
-    copy_food(m, map_copy, 2);
-    copy_items(m, map_copy, 4);
-    copy_rocks(m, map_copy, 4);
-    copy_monsters(m, map_copy, 3);
+    copy_food(m, map_copy, foodCount);
+    copy_items(m, map_copy, itemsCount);
+    copy_rocks(m, map_copy, rocksCount);
+    copy_monsters(m, map_copy, monstersCount);
     copy_rahan(m, map_copy);
     map_copy->x_decrease = m->x_decrease;
     map_copy->y_decrease = m->y_decrease;

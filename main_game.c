@@ -5,6 +5,12 @@
 #include <string.h>
 #include "main_game.h"
 
+static int itemsCount = 4;
+static int monstersCount = 3;
+static int rocksCount = 4;
+static int foodCount = 3;
+static int isRestored = 0;
+ 
 int isDead(Hero *h)
 {
     if (h->current_hp <= 0)
@@ -205,18 +211,18 @@ void movement(Hero *h, int direction, Map *map)
 void release_created_names(Map *m)
 {
     int i;
-    for (i = 0; i < 2; i++)
+    for (i = 0; i < foodCount; i++)
     {
         stdprof_free(m->food[i].name);
         stdprof_free(m->food[i].description);
     }
 
-    for (i = 0; i < 4; i++)
+    for (i = 0; i < itemsCount; i++)
     {
         stdprof_free(m->items[i].description);
     }
 
-    for (i = 0; i < 3; i++)
+    for (i = 0; i < monstersCount; i++)
     {
         stdprof_free(m->monsters[i].name);
     }
@@ -303,7 +309,7 @@ void game_plot(Map *m, Game_History *gh)
         }
         else if (strcmp(c, "HAUT") == 0 || strcmp(c, "BAS") == 0 || strcmp(c, "DROIT") == 0 || strcmp(c, "GAUCHE") == 0)
         {
-            Map *copy = copy_map(m);
+            Map *copy = copy_map(m, foodCount, monstersCount, itemsCount, rocksCount);
             add_new_checkpoint(copy, gh);
             if (strcmp(c, "HAUT") == 0)
                 movement(h, 1, m);
@@ -318,6 +324,23 @@ void game_plot(Map *m, Game_History *gh)
             render_map(m);
         else if (strcmp(c, "INVOCATION") == 0)
             print_hero_stats(m);
+        else if (strcmp(c, "AAA") == 0){
+            m->hero->current_hp = 0;
+        }
+        else if (strcmp(c, "SAVE") == 0){
+            upload_changes(m);
+            printf("Changes was successfully uploaded!\n");
+        }
+        else if (strcmp(c, "RESTORE") == 0){
+            Map* cpy = restore_map(foodCount, monstersCount, itemsCount, rocksCount);
+            release_GameHistory_memory(gh);
+            release_final_map_memory(m);
+            m = cpy;
+            gh = stdprof_malloc(sizeof(Game_History));
+            gh->head = NULL;
+            gh->size = 0;
+            printf("Data was read\n");
+        }
         else if (strcmp(c, "ANNULER") == 0)
         {
             if (gh->size == 0)
@@ -342,7 +365,7 @@ void game_plot(Map *m, Game_History *gh)
 
     if (isDead(h))
         printf("\nRahan fought bravely, but unfortunately fell at the hands of his strongest enemies.\nGive Rahan a chance to try his luck again!\n");
-    else
+    else if(isVictory(m))
         printf("\nThe game ends with a majestic victory for Rahan.\nHe managed to defeat all the enemies in his path and was able to maintain %d health.\n", h->current_hp);
     
 
@@ -355,7 +378,7 @@ void game_start()
     Map *m;
     Game_History *gh;
 
-    m = create_map();
+    m = create_map(foodCount, monstersCount, itemsCount, rocksCount);
     m->size_x = 10;
     m->size_y = 10;
     gh = stdprof_malloc(sizeof(Game_History));

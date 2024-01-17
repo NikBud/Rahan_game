@@ -1,0 +1,113 @@
+Food:3
+Whispering Willow Spice
+A mindclearing plant, nice find for a traveler
+15
+*
+5
+7
+Velvet Skyfruit
+Growing on the sky islands, a rare delicacy
+2
+*
+6
+6
+Feywild Fern Sorbet
+Probably the tasties sorbet you've ever had
+21
+*
+6
+2
+
+Rocks:4
+#
+5
+6
+#
+7
+5
+#
+0
+2
+#
+6
+3
+
+Monsters:3
+Darkflame
+2
+1
+@
+1
+8
+Bonecrusher
+0
+9
+@
+1
+6
+Voidclaw
+33
+16
+@
+0
+5
+
+Items:4
+Enigma Enforcer
+0
+4
+!
+8
+3
+Serpentine Shadowknife
+1
+5
+!
+2
+1
+Frostbane Treads
+2
+5
+!
+1000
+6
+Obsidian Overlord
+0
+5
+!
+1000
+4
+
+Hero:
+50
+50
+15
+6
+2
+0
+R
+9
+4
+Hero_Items:3
+Obsidian Overlord
+0
+5
+!
+null
+0
+0
+null
+Frostbane Treads
+2
+5
+!
+
+Map:
+3
+16
+10
+10
+0
+0
+0
+0

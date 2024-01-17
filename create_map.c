@@ -247,7 +247,7 @@ void create_arbre_olivier(Map* m){
     position_list[m->position_list_size++].symbol = 'Y';
 }
 
-Map* create_map() {
+Map* create_map(int foodCount, int monsterCount, int itemsCount, int rocksCount) {
     Map* game_map;
     srand(time(NULL));
     
@@ -263,10 +263,10 @@ Map* create_map() {
 
     create_arbre_olivier(game_map);
     create_rahan(game_map);
-    create_rocks(game_map, 4);
-    create_monsters(game_map, 3);
-    create_food(game_map, 2);
-    create_items(game_map, 4);
+    create_rocks(game_map, rocksCount);
+    create_monsters(game_map, monsterCount);
+    create_food(game_map, foodCount);
+    create_items(game_map, itemsCount);
 
     return game_map;
 }

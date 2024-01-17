@@ -110,6 +110,7 @@ void render_map(Map* m){
                     else{
                         printf("%d", i - 2);
                     }
+                    continue;
                 }
                 else if (j == y_start + 1 || j == size_y * 2 + 1){
                     printf("|");
@@ -118,9 +119,11 @@ void render_map(Map* m){
                 else if (j % 2 == 0){
                     chr = ifObjectPresentAtPosition(m, i - 2, j / 2 - 1);
                     printf("%c", chr);
+                    continue;
                 }
                 else{
                     printf(" ");
+                    continue;
                 }
             }
         }
