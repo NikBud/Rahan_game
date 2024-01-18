@@ -1,4 +1,4 @@
-#include "print_map.h"
+#include "libs/print_map.h"
 
 void print_hero_items(Hero* h){
     const char* item_types[3];

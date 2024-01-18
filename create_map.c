@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <time.h>
-#include "create_map.h"
+#include "libs/create_map.h"
 
 void create_unique_pos(Map* m) {
     Position* position_list;

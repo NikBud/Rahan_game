@@ -3,7 +3,7 @@
 #include <limits.h>
 #include <time.h>
 #include <string.h>
-#include "main_game.h"
+#include "libs/main_game.h"
 
 static int itemsCount;
 static int monstersCount;
@@ -310,36 +310,33 @@ void game_plot(Map *m, Game_History *gh)
         printf("\nYour command: ");
         scanf("%10s", c);
 
-        if (strcmp(c, "CREPUSCULE") == 0)
+        if (strcmp(c, "CREPUSCULE") == 0 || strcmp(c, "C") == 0)
         {
             printf("\nYou decided to end up the game, thank you and our team are waiting for you again!\n");
             break;
         }
-        else if (strcmp(c, "HAUT") == 0 || strcmp(c, "BAS") == 0 || strcmp(c, "DROIT") == 0 || strcmp(c, "GAUCHE") == 0)
+        else if (strcmp(c, "HAUT") == 0 || strcmp(c, "BAS") == 0 || strcmp(c, "DROIT") == 0 || strcmp(c, "GAUCHE") == 0 || strcmp(c, "H") == 0 || strcmp(c, "B") == 0 || strcmp(c, "D") == 0 || strcmp(c, "G") == 0)
         {
             Map *copy = copy_map(m, foodCount, monstersCount, itemsCount, rocksCount);
             add_new_checkpoint(copy, gh);
-            if (strcmp(c, "HAUT") == 0)
+            if (strcmp(c, "HAUT") == 0 || strcmp(c, "H") == 0)
                 movement(h, 1, m);
-            else if (strcmp(c, "BAS") == 0)
+            else if (strcmp(c, "BAS") == 0 || strcmp(c, "B") == 0)
                 movement(h, 2, m);
-            else if (strcmp(c, "DROIT") == 0)
+            else if (strcmp(c, "DROIT") == 0 || strcmp(c, "D") == 0)
                 movement(h, 3, m);
-            else if (strcmp(c, "GAUCHE") == 0)
+            else if (strcmp(c, "GAUCHE") == 0 || strcmp(c, "G") == 0)
                 movement(h, 4, m);
         }
-        else if (strcmp(c, "VISION") == 0)
+        else if (strcmp(c, "VISION") == 0 || strcmp(c, "V") == 0)
             render_map(m);
-        else if (strcmp(c, "INVOCATION") == 0)
+        else if (strcmp(c, "INVOCATION") == 0 || strcmp(c, "I") == 0)
             print_hero_stats(m);
-        else if (strcmp(c, "AAA") == 0){
-            m->hero->current_hp = 0;
-        }
-        else if (strcmp(c, "SAVE") == 0){
+        else if (strcmp(c, "SAVE") == 0 || strcmp(c, "S") == 0){
             upload_changes(m);
             printf("\nChanges was successfully uploaded!\n");
         }
-        else if (strcmp(c, "RESTORE") == 0){
+        else if (strcmp(c, "RESTORE") == 0 || strcmp(c, "R") == 0){
             Map* cpy;
             if (isEmptyFile("txts/checkpoint.txt") == 1){
                 printf("\nSory, you cannot restore saved changes, because file with changes is empty.\n");
@@ -357,7 +354,7 @@ void game_plot(Map *m, Game_History *gh)
 
             printf("\nData was successfully read\n");
         }
-        else if (strcmp(c, "ANNULER") == 0)
+        else if (strcmp(c, "ANNULER") == 0 || strcmp(c, "A") == 0)
         {
             if (gh->size == 0)
             {

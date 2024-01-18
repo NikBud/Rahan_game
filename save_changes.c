@@ -1,6 +1,4 @@
-#include "save_changes.h"
-#include "create_map.h"
-#include "print_map.h"
+#include "libs/save_changes.h"
 #include <string.h>
 
 void upload_food(Food* f, FILE* file, int count){

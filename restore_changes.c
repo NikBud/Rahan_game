@@ -1,6 +1,4 @@
-#include "restore_changes.h"
-#include "create_map.h"
-#include "print_map.h"
+#include "libs/restore_changes.h"
 #include <string.h>
 
 int lineToInt(char* str){
@@ -265,9 +263,7 @@ Map* restore_map(int foodCount, int monsterCount, int itemsCount, int rocksCount
     read_hero(file, m->hero);
     read_hero_items(file, m->hero->items);
     read_map_data(file, m);
-    // render_map(m);
-    // print_hero_stats(m);
-    
+
     fclose(file);
     return m;
 }

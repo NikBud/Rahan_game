@@ -1,4 +1,4 @@
-#include "release_memory.h"
+#include "libs/release_memory.h"
 
 void release_created_names(Map *m, int foodCount, int monstersCount, int itemsCount, int rocksCount)
 {

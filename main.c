@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <time.h>
-#include "main_game.h"
+#include "libs/main_game.h"
 
 int main(void){
     int foodCount, monstersCount, itemsCount, rocksCount;
