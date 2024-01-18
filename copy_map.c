@@ -108,17 +108,22 @@ void copy_food(Map* map_to_copy, Map* copy_map, int food_count){
 }
 
 void copy_hero_items(Hero* hero_to_copy, Hero* new_hero){
-    int i;
+    int i, j;
     Item *items_to_copy, *new_items;
 
     items_to_copy = hero_to_copy->items;
     new_items = stdprof_malloc(sizeof(Item) * 3);
     new_hero->items_count = hero_to_copy->items_count;
-       
+    for (i = 0; i < 3; i++){
+        new_items[i].description = stdprof_malloc(100);
+    }
+
     for(i = 0; i < 3; i++){
         new_items[i].symbol = items_to_copy[i].symbol;
         new_items[i].type = items_to_copy[i].type;
-        new_items[i].description = items_to_copy[i].description;
+        for(j = 0; j < 100; j++){
+            new_items[i].description[j] = items_to_copy[i].description[j];
+        }
         new_items[i].stat_bonus = items_to_copy[i].stat_bonus;
     }
 
@@ -154,9 +159,11 @@ void copy_arbre_olivier(Map* m){
 
 Map* copy_map(Map* m, int foodCount, int monstersCount, int itemsCount, int rocksCount){
     Map* map_copy;
+    int pos_list_size;
     
+    pos_list_size = 2 + foodCount + monstersCount + itemsCount + rocksCount;
     map_copy = stdprof_malloc(sizeof(Map));
-    map_copy->positions = stdprof_malloc(16 * sizeof(Position));
+    map_copy->positions = stdprof_malloc(pos_list_size * sizeof(Position));
     map_copy->monster_list_size = m->monster_list_size;
 
     copy_arbre_olivier(map_copy);

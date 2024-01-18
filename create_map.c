@@ -82,7 +82,7 @@ char* get_food_desc(int rando){
 
     counter = 0;
     line = stdprof_malloc(sizeof(char) *100);
-    fptr = fopen("foodesc.txt", "r");
+    fptr = fopen("txts/foodesc.txt", "r");
     
     while (fgets(line, 100, fptr) != NULL){
         if (counter == rando){
@@ -106,16 +106,16 @@ char* get_name(int i, int rando){
     
     switch(i){
         case 1:
-            fptr = fopen("monsternames.txt", "r");
+            fptr = fopen("txts/monsternames.txt", "r");
             break;
         case 2:
-            fptr = fopen("foodnames.txt", "r");
+            fptr = fopen("txts/foodnames.txt", "r");
             break;
         case 3:
-            fptr = fopen("itemnames.txt", "r");
+            fptr = fopen("txts/itemnames.txt", "r");
             break;
         default:
-            fptr = fopen("monsternames.txt", "r");
+            fptr = fopen("txts/monsternames.txt", "r");
             break;
     }
 
@@ -156,7 +156,7 @@ void create_monsters(Map* m, int count){
     position_list = m->positions;
     monsters = stdprof_malloc(sizeof(Monster) * count);
     
-    for (i = 0; i<count; i++){
+    for (i = 0; i < count; i++){
         r = rand() % 100;
         monsters[i] = generate_monster(m, get_name(1, r), rand()%20, rand()%50);
         position_list[m->position_list_size++].obj = &monsters[i];
@@ -217,10 +217,14 @@ void create_rahan(Map* m){
     Hero* h;
     Item* itm;
     Position* position_list;
-    int position_list_size;
+    int position_list_size, i;
 
     h = stdprof_malloc(sizeof(Hero));
     itm = stdprof_malloc(sizeof(Item) * 3);
+    for (i = 0; i < 3; i++){
+        itm[i].description = stdprof_malloc(100);
+    }
+    
     position_list = m->positions;
     position_list_size = m->position_list_size;
     
@@ -249,17 +253,19 @@ void create_arbre_olivier(Map* m){
 
 Map* create_map(int foodCount, int monsterCount, int itemsCount, int rocksCount) {
     Map* game_map;
+    int pos_list_size;
     srand(time(NULL));
     
+    pos_list_size = 2 + foodCount + monsterCount + itemsCount + rocksCount;
     game_map = stdprof_malloc(sizeof(Map));
-    game_map->positions = stdprof_malloc(16 * sizeof(Position));
+    game_map->positions = stdprof_malloc(pos_list_size * sizeof(Position));
     game_map->position_list_size = 0;
 
     game_map->x_decrease = 0;
     game_map->y_decrease = 0;
     game_map->x_increase = 0;
     game_map->y_increase = 0;
-    game_map->monster_list_size = 3;
+    game_map->monster_list_size = monsterCount;
 
     create_arbre_olivier(game_map);
     create_rahan(game_map);
