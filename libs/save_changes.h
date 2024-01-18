@@ -1,5 +1,5 @@
+#include "types.h"
 #include "create_map.h"
 #include "print_map.h"
-#include "copy_map.h"
 
-void game_start();
+void upload_changes(Map* m);

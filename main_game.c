@@ -3,8 +3,13 @@
 #include <limits.h>
 #include <time.h>
 #include <string.h>
-#include "main_game.h"
+#include "libs/main_game.h"
 
+static int itemsCount;
+static int monstersCount;
+static int rocksCount;
+static int foodCount;
+ 
 int isDead(Hero *h)
 {
     if (h->current_hp <= 0)
@@ -33,6 +38,21 @@ int desired_y_pos(int current_y, int direction)
     else if (direction == 4)
         current_y -= 1;
     return current_y;
+}
+
+int isEmptyFile(char* filename){
+    char line[100];
+    FILE* file;
+
+    file = fopen(filename, "r");
+    if (file == NULL) {
+        fprintf(stderr, "Could not open the file for reading\n");
+    }
+
+    if (fgets(line, sizeof(line), file) != NULL){
+        return 0;
+    }
+    return 1;
 }
 
 void improve_hero(Hero *h, char *stat_to_improve, int stat_bonus)
@@ -104,10 +124,10 @@ void handle_item_case(Map *m, int i)
 {
     Hero *h;
     Item *itm;
-    int type;
+    int type, j;
     Item existed_itm;
     char *item_bonus_types[3];
-
+    
     h = m->hero;
     itm = (Item *)m->positions[i].obj;
     type = itm->type;
@@ -119,7 +139,13 @@ void handle_item_case(Map *m, int i)
 
     if (existed_itm.stat_bonus < itm->stat_bonus)
     {
-        h->items[type] = *itm;
+        h->items[type].symbol = itm->symbol;
+        h->items[type].stat_bonus = itm->stat_bonus;
+        h->items[type].type = itm->type;
+        for(j = 0; j < 100; j++){
+            h->items[type].description[j] = itm->description[j];
+        }
+
         if (existed_itm.stat_bonus == 0)
             h->items_count++;
         improve_hero(h, item_bonus_types[type], h->items[type].stat_bonus);
@@ -202,57 +228,13 @@ void movement(Hero *h, int direction, Map *map)
     }
 }
 
-void release_created_names(Map *m)
-{
-    int i;
-    for (i = 0; i < 2; i++)
-    {
-        stdprof_free(m->food[i].name);
-        stdprof_free(m->food[i].description);
-    }
-
-    for (i = 0; i < 4; i++)
-    {
-        stdprof_free(m->items[i].description);
-    }
-
-    for (i = 0; i < 3; i++)
-    {
-        stdprof_free(m->monsters[i].name);
-    }
-}
-
-void release_map_memory(Map *m)
-{
-    stdprof_free(m->positions);
-    stdprof_free(m->rocks);
-    stdprof_free(m->food);
-    stdprof_free(m->items);
-    stdprof_free(m->monsters);
-    stdprof_free(m->hero->items);
-    stdprof_free(m->hero);
-    stdprof_free(m);
-}
-
-void release_final_map_memory(Map* m){
-    release_created_names(m);
-    release_map_memory(m);
-}
-
-void release_MapCell_memory(Map_Cell *mc)
-{
-    if (mc != NULL)
-    {
-        release_map_memory(mc->map);
-        release_MapCell_memory(mc->next);
-        stdprof_free(mc);
-    }
-}
-
-void release_GameHistory_memory(Game_History *gh)
-{
-    release_MapCell_memory(gh->head);
-    stdprof_free(gh);
+Game_History* init_gh(){
+    Game_History* gh;
+    gh = stdprof_malloc(sizeof(Game_History));
+    gh->head = NULL;
+    gh->size = 0;
+    
+    return gh;
 }
 
 void add_new_checkpoint(Map *m, Game_History *gh)
@@ -273,10 +255,32 @@ void add_new_checkpoint(Map *m, Game_History *gh)
     gh->head = mc;
 }
 
+Map* beginFromSavedChanges(Map* m, Game_History* gh){
+    char c[12];
+    if (isEmptyFile("txts/checkpoint.txt") == 0){
+        printf("You have saved progress, would you like to start the game from there?\n");
+        printf("Your decision(YES/NO): ");
+        scanf("%10s", c);
+        if (strcmp(c, "YES") == 0)
+        {
+            Map* cpy = restore_map(foodCount, monstersCount, itemsCount, rocksCount);
+            release_GameHistory_memory(gh);
+            release_final_map_memory(m, foodCount, monstersCount, itemsCount, rocksCount);
+
+            printf("\nData was successfully read\n");
+            return cpy;
+        }
+    }
+    return NULL;
+}
+
 void game_plot(Map *m, Game_History *gh)
 {
-    Hero *h = m->hero;
+    Hero *h;
     char c[12];
+    Map* mapToRestoreChanges;
+
+    h = m->hero;
     printf("Welcome to the Rahan Game !\n");
     printf("Type the word \'AUBE\' to start the game: ");
     scanf("%10s", c);
@@ -286,7 +290,17 @@ void game_plot(Map *m, Game_History *gh)
         scanf("%10s", c);
     }
 
-    printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+    printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+
+    mapToRestoreChanges = beginFromSavedChanges(m, gh);
+    if (mapToRestoreChanges != NULL)
+    {
+        m = mapToRestoreChanges;
+        gh = init_gh();
+    }
+
+    printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+
     render_map(m);
     printf("THE GAME BEGINS\n");
 
@@ -296,29 +310,51 @@ void game_plot(Map *m, Game_History *gh)
         printf("\nYour command: ");
         scanf("%10s", c);
 
-        if (strcmp(c, "CREPUSCULE") == 0)
+        if (strcmp(c, "CREPUSCULE") == 0 || strcmp(c, "C") == 0)
         {
             printf("\nYou decided to end up the game, thank you and our team are waiting for you again!\n");
             break;
         }
-        else if (strcmp(c, "HAUT") == 0 || strcmp(c, "BAS") == 0 || strcmp(c, "DROIT") == 0 || strcmp(c, "GAUCHE") == 0)
+        else if (strcmp(c, "HAUT") == 0 || strcmp(c, "BAS") == 0 || strcmp(c, "DROIT") == 0 || strcmp(c, "GAUCHE") == 0 || strcmp(c, "H") == 0 || strcmp(c, "B") == 0 || strcmp(c, "D") == 0 || strcmp(c, "G") == 0)
         {
-            Map *copy = copy_map(m);
+            Map *copy = copy_map(m, foodCount, monstersCount, itemsCount, rocksCount);
             add_new_checkpoint(copy, gh);
-            if (strcmp(c, "HAUT") == 0)
+            if (strcmp(c, "HAUT") == 0 || strcmp(c, "H") == 0)
                 movement(h, 1, m);
-            else if (strcmp(c, "BAS") == 0)
+            else if (strcmp(c, "BAS") == 0 || strcmp(c, "B") == 0)
                 movement(h, 2, m);
-            else if (strcmp(c, "DROIT") == 0)
+            else if (strcmp(c, "DROIT") == 0 || strcmp(c, "D") == 0)
                 movement(h, 3, m);
-            else if (strcmp(c, "GAUCHE") == 0)
+            else if (strcmp(c, "GAUCHE") == 0 || strcmp(c, "G") == 0)
                 movement(h, 4, m);
         }
-        else if (strcmp(c, "VISION") == 0)
+        else if (strcmp(c, "VISION") == 0 || strcmp(c, "V") == 0)
             render_map(m);
-        else if (strcmp(c, "INVOCATION") == 0)
+        else if (strcmp(c, "INVOCATION") == 0 || strcmp(c, "I") == 0)
             print_hero_stats(m);
-        else if (strcmp(c, "ANNULER") == 0)
+        else if (strcmp(c, "SAVE") == 0 || strcmp(c, "S") == 0){
+            upload_changes(m);
+            printf("\nChanges was successfully uploaded!\n");
+        }
+        else if (strcmp(c, "RESTORE") == 0 || strcmp(c, "R") == 0){
+            Map* cpy;
+            if (isEmptyFile("txts/checkpoint.txt") == 1){
+                printf("\nSory, you cannot restore saved changes, because file with changes is empty.\n");
+                continue;
+            }
+
+            cpy = restore_map(foodCount, monstersCount, itemsCount, rocksCount);
+            release_GameHistory_memory(gh);
+            release_final_map_memory(m, foodCount, monstersCount, itemsCount, rocksCount);
+            m = cpy;
+            gh = init_gh();
+
+            render_map(m);
+            print_hero_stats(m);
+
+            printf("\nData was successfully read\n");
+        }
+        else if (strcmp(c, "ANNULER") == 0 || strcmp(c, "A") == 0)
         {
             if (gh->size == 0)
             {
@@ -337,30 +373,32 @@ void game_plot(Map *m, Game_History *gh)
             }
         }
         else
-            printf("\nUnknown command, please try again.\nAllowed commands are: AUBE (start game), CREPUSCULE (finish game),\nVISION (print map), INVOCATION (stats of player),\nHAUT (make a step up), BAS (make a step down),\nGAUCHE (make a step left), DROITE (make a step right).\n");
+            printf("\nUnknown command, please try again.\nAllowed commands are: AUBE (start game), CREPUSCULE (finish game),\nVISION (print map), INVOCATION (stats of player),\nSAVE (to save your progress and next time start game from point of your progress),\nRESTORE (to restore saved data from file and start the game from the point of your progress),\nANNELER (to cancel your last step),\nHAUT (make a step up), BAS (make a step down),\nGAUCHE (make a step left), DROITE (make a step right).\n");
     }
 
     if (isDead(h))
         printf("\nRahan fought bravely, but unfortunately fell at the hands of his strongest enemies.\nGive Rahan a chance to try his luck again!\n");
-    else
+    else if(isVictory(m))
         printf("\nThe game ends with a majestic victory for Rahan.\nHe managed to defeat all the enemies in his path and was able to maintain %d health.\n", h->current_hp);
     
-
     release_GameHistory_memory(gh);
-    release_final_map_memory(m);
+    release_final_map_memory(m, foodCount, monstersCount, itemsCount, rocksCount);
 }
 
-void game_start()
+void game_start(int fc, int mc, int ic, int rc)
 {
     Map *m;
     Game_History *gh;
 
-    m = create_map();
+    foodCount = fc;
+    monstersCount = mc;
+    itemsCount = ic;
+    rocksCount = rc;
+
+    m = create_map(foodCount, monstersCount, itemsCount, rocksCount);
     m->size_x = 10;
     m->size_y = 10;
-    gh = stdprof_malloc(sizeof(Game_History));
-    gh->head = NULL;
-    gh->size = 0;
+    gh = init_gh();
 
     game_plot(m, gh);
 }
