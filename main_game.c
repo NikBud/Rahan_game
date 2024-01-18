@@ -40,6 +40,21 @@ int desired_y_pos(int current_y, int direction)
     return current_y;
 }
 
+int isEmptyFile(char* filename){
+    char line[100];
+    FILE* file;
+
+    file = fopen(filename, "r");
+    if (file == NULL) {
+        fprintf(stderr, "Could not open the file for reading\n");
+    }
+
+    if (fgets(line, sizeof(line), file) != NULL){
+        return 0;
+    }
+    return 1;
+}
+
 void improve_hero(Hero *h, char *stat_to_improve, int stat_bonus)
 {
     if (strcmp(stat_to_improve, "speed") == 0)
@@ -240,10 +255,32 @@ void add_new_checkpoint(Map *m, Game_History *gh)
     gh->head = mc;
 }
 
+Map* beginFromSavedChanges(Map* m, Game_History* gh){
+    char c[12];
+    if (isEmptyFile("txts/checkpoint.txt") == 0){
+        printf("You have saved progress, would you like to start the game from there?\n");
+        printf("Your decision(YES/NO): ");
+        scanf("%10s", c);
+        if (strcmp(c, "YES") == 0)
+        {
+            Map* cpy = restore_map(foodCount, monstersCount, itemsCount, rocksCount);
+            release_GameHistory_memory(gh);
+            release_final_map_memory(m, foodCount, monstersCount, itemsCount, rocksCount);
+
+            printf("\nData was successfully read\n");
+            return cpy;
+        }
+    }
+    return NULL;
+}
+
 void game_plot(Map *m, Game_History *gh)
 {
-    Hero *h = m->hero;
+    Hero *h;
     char c[12];
+    Map* mapToRestoreChanges;
+
+    h = m->hero;
     printf("Welcome to the Rahan Game !\n");
     printf("Type the word \'AUBE\' to start the game: ");
     scanf("%10s", c);
@@ -253,7 +290,17 @@ void game_plot(Map *m, Game_History *gh)
         scanf("%10s", c);
     }
 
-    printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+    printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+
+    mapToRestoreChanges = beginFromSavedChanges(m, gh);
+    if (mapToRestoreChanges != NULL)
+    {
+        m = mapToRestoreChanges;
+        gh = init_gh();
+    }
+
+    printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+
     render_map(m);
     printf("THE GAME BEGINS\n");
 
@@ -293,11 +340,20 @@ void game_plot(Map *m, Game_History *gh)
             printf("\nChanges was successfully uploaded!\n");
         }
         else if (strcmp(c, "RESTORE") == 0){
-            Map* cpy = restore_map(foodCount, monstersCount, itemsCount, rocksCount);
+            Map* cpy;
+            if (isEmptyFile("txts/checkpoint.txt") == 1){
+                printf("\nSory, you cannot restore saved changes, because file with changes is empty.\n");
+                continue;
+            }
+
+            cpy = restore_map(foodCount, monstersCount, itemsCount, rocksCount);
             release_GameHistory_memory(gh);
             release_final_map_memory(m, foodCount, monstersCount, itemsCount, rocksCount);
             m = cpy;
             gh = init_gh();
+
+            render_map(m);
+            print_hero_stats(m);
 
             printf("\nData was successfully read\n");
         }

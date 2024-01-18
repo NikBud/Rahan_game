@@ -262,28 +262,11 @@ Map* restore_map(int foodCount, int monsterCount, int itemsCount, int rocksCount
     read_rocks(file, m->rocks);
     read_monsters(file, m->monsters);
     read_items(file, m->items);
-
-    //printf("%d\n%d\n%d\n%d\n%d\n%d\n%c\n%d\n%d\n", h->max_hp, h->current_hp, h->force, h->speed, h->items_count, h->victories_count, h->symbol, h->pos->x, h->pos->y);
     read_hero(file, m->hero);
-    //printf("%d\n%d\n%d\n%d\n%d\n%d\n%c\n%d\n%d\n\n\n", h->max_hp, h->current_hp, h->force, h->speed, h->items_count, h->victories_count, h->symbol, h->pos->x, h->pos->y);
-
-
     read_hero_items(file, m->hero->items);
-    /*for (i = 0; i < 3; i++)
-    {
-        Item tmp = m->hero->items[i];
-        if (strcmp(tmp.description, "") == 0)
-        {
-            printf("Item: %s\n%u\n%d\n%s\n", "null", tmp.type, tmp.stat_bonus, "null");
-        }
-        else{
-            printf("Item: %s%u\n%d\n%c\n", tmp.description, tmp.type, tmp.stat_bonus, tmp.symbol);
-        }
-    }*/
     read_map_data(file, m);
-    //printf("\n\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n", m->monster_list_size, m->position_list_size, m->size_x, m->size_y, m->x_decrease, m->x_increase, m->y_decrease, m->y_increase);
-    render_map(m);
-    print_hero_stats(m);
+    // render_map(m);
+    // print_hero_stats(m);
     
     fclose(file);
     return m;
