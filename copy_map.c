@@ -165,6 +165,7 @@ Map* copy_map(Map* m, int foodCount, int monstersCount, int itemsCount, int rock
     map_copy = stdprof_malloc(sizeof(Map));
     map_copy->positions = stdprof_malloc(pos_list_size * sizeof(Position));
     map_copy->monster_list_size = m->monster_list_size;
+    map_copy->position_list_size = 0;
 
     copy_arbre_olivier(map_copy);
     copy_food(m, map_copy, foodCount);
