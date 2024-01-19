@@ -10,8 +10,9 @@ static int monstersCount;
 static int rocksCount;
 static int foodCount;
  
-int isDead(Hero *h)
+int isDead(Map* m)
 {
+    Hero* h = m->hero;
     if (h->current_hp <= 0)
         return 1;
     return 0;
@@ -65,8 +66,9 @@ void improve_hero(Hero *h, char *stat_to_improve, int stat_bonus)
         h->force = stat_bonus + 10;
 }
 
-int battle_init(Hero *h, Monster *m)
+int battle_init(Map *map, Monster *m)
 {
+    Hero* h = map->hero;
     while (1)
     {
         m->hp = m->hp - h->force;
@@ -77,7 +79,7 @@ int battle_init(Hero *h, Monster *m)
             return 1;
         }
         h->current_hp = h->current_hp - m->damage;
-        if (isDead(h))
+        if (isDead(map))
         {
             printf("\nRahan suffered a mortal wound inflicted by %s\n", m->name);
             return 0;
@@ -163,13 +165,11 @@ void handle_item_case(Map *m, int i)
 
 void handle_monster_case(Map *m, int i)
 {
-    Hero *h;
     Monster *mnstr;
 
-    h = m->hero;
     mnstr = (Monster *)m->positions[i].obj;
 
-    battle_init(h, mnstr);
+    battle_init(m, mnstr);
     mnstr->pos->x = 1000;
 }
 
@@ -188,12 +188,13 @@ void check_map_size(Map *m)
         m->y_decrease++;
 }
 
-void movement(Hero *h, int direction, Map *map)
+void movement(int direction, Map *map)
 {
+    Hero* h = map->hero;
     int i, j, flag, calc_heal, xd, yd, current_speed;
     current_speed = h->speed;
     j = 0;
-    while (j < current_speed && !isDead(h) && !isVictory(map))
+    while (j < current_speed && !isDead(map) && !isVictory(map))
     {
         xd = desired_x_pos(h->pos->x, direction);
         yd = desired_y_pos(h->pos->y, direction);
@@ -264,8 +265,8 @@ Map* beginFromSavedChanges(Map* m, Game_History* gh){
         if (strcmp(c, "YES") == 0)
         {
             Map* cpy = restore_map(foodCount, monstersCount, itemsCount, rocksCount);
-            release_GameHistory_memory(gh);
             release_final_map_memory(m, foodCount, monstersCount, itemsCount, rocksCount);
+            release_GameHistory_memory(gh);
 
             printf("\nData was successfully read\n");
             return cpy;
@@ -304,7 +305,7 @@ void game_plot(Map *m, Game_History *gh)
     render_map(m);
     printf("THE GAME BEGINS\n");
 
-    while (!isDead(h) && !isVictory(m))
+    while (!isDead(m) && !isVictory(m))
     {
         h = m->hero;
         printf("\nYour command: ");
@@ -320,13 +321,13 @@ void game_plot(Map *m, Game_History *gh)
             Map *copy = copy_map(m, foodCount, monstersCount, itemsCount, rocksCount);
             add_new_checkpoint(copy, gh);
             if (strcmp(c, "HAUT") == 0 || strcmp(c, "H") == 0)
-                movement(h, 1, m);
+                movement(1, m);
             else if (strcmp(c, "BAS") == 0 || strcmp(c, "B") == 0)
-                movement(h, 2, m);
+                movement(2, m);
             else if (strcmp(c, "DROIT") == 0 || strcmp(c, "D") == 0)
-                movement(h, 3, m);
+                movement(3, m);
             else if (strcmp(c, "GAUCHE") == 0 || strcmp(c, "G") == 0)
-                movement(h, 4, m);
+                movement(4, m);
         }
         else if (strcmp(c, "VISION") == 0 || strcmp(c, "V") == 0)
             render_map(m);
@@ -376,7 +377,7 @@ void game_plot(Map *m, Game_History *gh)
             printf("\nUnknown command, please try again.\nAllowed commands are: AUBE (start game), CREPUSCULE (finish game),\nVISION (print map), INVOCATION (stats of player),\nSAVE (to save your progress and next time start game from point of your progress),\nRESTORE (to restore saved data from file and start the game from the point of your progress),\nANNELER (to cancel your last step),\nHAUT (make a step up), BAS (make a step down),\nGAUCHE (make a step left), DROITE (make a step right).\n");
     }
 
-    if (isDead(h))
+    if (isDead(m))
         printf("\nRahan fought bravely, but unfortunately fell at the hands of his strongest enemies.\nGive Rahan a chance to try his luck again!\n");
     else if(isVictory(m))
         printf("\nThe game ends with a majestic victory for Rahan.\nHe managed to defeat all the enemies in his path and was able to maintain %d health.\n", h->current_hp);
